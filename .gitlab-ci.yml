@@ -20,9 +20,6 @@ stages:
   - lint
   - build
   - test
-  - deploy
-  - integration
-  - staging
   - join-reports
   - pages
   - publish
@@ -74,8 +71,8 @@ include:
     file: 'gitlab-ci/includes/finaliser.gitlab-ci.yml'
 
 # k8s steps
-  - project: 'ska-telescope/templates-repository'
-    file: 'gitlab-ci/includes/k8s.gitlab-ci.yml'
+#  - project: 'ska-telescope/templates-repository'
+#    file: 'gitlab-ci/includes/k8s.gitlab-ci.yml'
 
 # changelog release page
   - project: 'ska-telescope/templates-repository'
