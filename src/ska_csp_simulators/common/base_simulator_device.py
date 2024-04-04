@@ -15,9 +15,10 @@ from __future__ import annotations
 import functools
 import itertools
 import json
+import logging
 
 # PyTango imports
-import logging
+import sys
 import threading
 import time
 from random import uniform
@@ -46,6 +47,8 @@ DevVarLongStringArrayType = tuple[list[ResultCode], list[str]]
 # pylint: disable=logging-fstring-interpolation
 # pylint: disable=unused-argument
 
+logging.basicConfig(level=logging.INFO)
+
 
 class BaseSimulatorDevice(Device):
     """
@@ -60,6 +63,15 @@ class BaseSimulatorDevice(Device):
     def init_device(self):
         """Initialises the attributes and properties of the Motor."""
         super().init_device()
+        # logging.basicConfig(level=logging.INFO)
+        file_handler = logging.FileHandler(filename="tmp.log")
+        stdout_handler = logging.StreamHandler(stream=sys.stdout)
+        handlers = [file_handler, stdout_handler]
+        logging.basicConfig(
+            level=logging.DEBUG,
+            format="[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s",
+            handlers=handlers,
+        )
         self.logger = logging.getLogger(__name__)
         self._health_state = HealthState.OK
         self._admin_mode = AdminMode.OFFLINE
@@ -71,6 +83,8 @@ class BaseSimulatorDevice(Device):
         self._command_result: tuple[str, str] = ("", "")
         self._time_to_complete = 0.4
         self._time_to_return = 0.05
+        self._faulty = False
+        self._raise_exception = False
         self._abort_event = threading.Event()
         self._command_tracker = CommandTracker(
             queue_changed_callback=self._update_commands_in_queue,
@@ -314,6 +328,12 @@ class BaseSimulatorDevice(Device):
             "longRunningCommandResult", self._command_result
         )
 
+    def check_raise_exception(self):
+        if self._raise_exception:
+            self._raise_exception = True
+            self.logger.error("Raised exception!")
+            raise ValueError("Error in executing command")
+
     # ----------
     # Attributes
     # ----------
@@ -324,6 +344,14 @@ class BaseSimulatorDevice(Device):
     @faulty.write
     def faulty(self, value: bool):
         self._faulty = value
+
+    @attribute(dtype="DevBoolean")
+    def raiseException(self):
+        return self._raise_exception
+
+    @raiseException.write
+    def raiseException(self, value: bool):
+        self._raise_exception = value
 
     @attribute(dtype="DevUShort")
     def timeToComplete(self):

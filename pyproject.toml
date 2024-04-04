@@ -9,7 +9,8 @@ packages = [
 ]
 
 [tool.poetry.scripts]
-BaseSimulatorDevice = 'ska_csp_simulators.common.BaseSimulatorDevice:main'
+MidCbfCtrlSimulator = 'ska_csp_simulators.mid.mid_cbf_ctrl_simulator:main'
+MidCbfSubarraySimulator = 'ska_csp_simulators.mid.mid_cbf_subarray_simulator:main'
 
 [[tool.poetry.source]]
 name = 'ska-nexus'

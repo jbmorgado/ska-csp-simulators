@@ -82,8 +82,10 @@ resources:
 deviceServers:
   enabled: true
   servers:
-    ctrl:
-      file: "data/beginner/ctrl.yaml"
+    midctrl:
+      file: "data/beginner/midctrl.yaml"
+    midsubarray:
+      file: "data/beginner/midsubarray.yaml"
 
 nodeSelector: {}
 

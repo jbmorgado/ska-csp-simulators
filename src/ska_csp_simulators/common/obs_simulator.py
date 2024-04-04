@@ -45,7 +45,6 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
         self._obs_mode = ObsMode.IDLE
         self._obs_state = ObsState.IDLE
         self._obs_faulty = False
-        self._faulty = False
         self._timeout = False
         self._endscan_event = threading.Event()
         for attribute_name in [
@@ -98,11 +97,13 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
                     _call_task_callback(status=TaskStatus.ABORTED)
                     self.update_obs_state(ObsState.ABORTED)
                     return
+
                 if self._obs_faulty:
-                    self.forceobsstate(ObsState.FAULT)
+                    self.ForceObsState(ObsState.FAULT)
                     _call_task_callback(
                         status=TaskStatus.COMPLETED, result=ResultCode.FAILED
                     )
+                    self._obs_faulty = False
                     return
                 time.sleep(0.1)
 
@@ -149,6 +150,7 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
         """
         Subarray configure resources
         """
+        self.check_raise_exception()
 
         def _configure_completed():
             self.logger.info("Command Configure completed on device}")
@@ -165,6 +167,7 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
     @command(dtype_in=str, dtype_out="DevVarLongStringArray")
     @DebugIt()
     def Scan(self, argin):
+        self.check_raise_exception()
         argin_dict = json.loads(argin)
         self.update_obs_state(ObsState.SCANNING)
         result_code, msg = self.do("scan", argin=argin_dict)
@@ -173,6 +176,8 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
     @command(dtype_out="DevVarLongStringArray")
     @DebugIt()
     def EndScan(self):
+        self.check_raise_exception()
+
         def _endscan():
             self.logger.info("Event scan started")
             self._command_tracker.update_command_info(
@@ -193,6 +198,8 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
     @command(dtype_out="DevVarLongStringArray")
     @DebugIt()
     def GoToIdle(self):
+        self.check_raise_exception()
+
         def _end_completed():
             self.logger.info("Command GotoIdle completed on device}")
             self.update_obs_state(ObsState.IDLE)
