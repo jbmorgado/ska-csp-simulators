@@ -185,9 +185,7 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
             self.update_obs_state(ObsState.READY)
 
         command_id = self._command_tracker.new_command("endscan")
-        self.logger.info("event 1")
         self._endscan_event.set()
-        self.logger.info("event 2")
         threading.Thread(target=_endscan).start()
         result_code, _ = ResultCode.STARTED, "EndScan invoked"
         return ([result_code], [command_id])

@@ -44,7 +44,6 @@ def subarray_device(tango_context):
 
 @pytest.fixture(autouse=True)
 def subarray_device_online(subarray_device, change_event_callbacks):
-    module_logger.info("Called online fixture")
     for attribute in [
         "state",
         "adminMode",

@@ -274,9 +274,6 @@ class BaseSimulatorDevice(Device):
         self._command_statuses = [
             str(item) for item in itertools.chain.from_iterable(statuses)
         ]
-        self.logger.info(
-            f"Pushing vent on command status {self._command_statuses}"
-        )
         self.push_change_event(
             "longRunningCommandStatus", self._command_statuses
         )

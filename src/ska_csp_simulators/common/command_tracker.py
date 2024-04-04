@@ -117,7 +117,6 @@ class CommandTracker:  # pylint: disable=too-many-instance-attributes
         :param result: the result of the completed asynchronous task
         :param exception: any exception caught in the running task
         """
-        module_logger.info(f"Received status: {status} {command_id}")
         with self.__lock:
             if exception is not None:
                 self._most_recent_exception = (command_id, exception)
@@ -131,7 +130,6 @@ class CommandTracker:  # pylint: disable=too-many-instance-attributes
                 self._progress_changed_callback(self.command_progresses)
             if status is not None:
                 self._commands[command_id]["status"] = status
-                module_logger.info(f"Updating to {self.command_statuses}")
                 self._status_changed_callback(self.command_statuses)
 
                 if status == TaskStatus.COMPLETED:

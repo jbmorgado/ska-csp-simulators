@@ -41,7 +41,6 @@ def base_device(tango_context):
 
 @pytest.fixture(autouse=True)
 def base_device_online(base_device, change_event_callbacks):
-    module_logger.info("Called online fixture")
     for attribute in [
         "state",
         "adminMode",
