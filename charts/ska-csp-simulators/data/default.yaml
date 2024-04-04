@@ -6,10 +6,10 @@ depends_on:
 server:
   name: "{{ .name }}"
 image:
-  registry: "{{ .Values.tango_example.image.registry }}"
-  image: "{{ .Values.tango_example.image.image }}"
-  tag: "{{ .Values.tango_example.image.tag }}"
-  pullPolicy: "{{ .Values.tango_example.image.pullPolicy }}"
+  registry: "{{ .Values.simul.image.registry }}"
+  image: "{{ .Values.simul.image.image }}"
+  tag: "{{ .Values.simul.image.tag }}"
+  pullPolicy: "{{ .Values.simul.image.pullPolicy }}"
 livenessProbe:
 {{ toYaml .Values.livenessProbe | indent 2 }}
 readinessProbe:
