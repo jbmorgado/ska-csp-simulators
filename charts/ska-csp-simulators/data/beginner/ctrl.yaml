@@ -1,0 +1,11 @@
+instances: ["ctrl"]
+entrypoints:
+  - path: "/app/src/ska_csp_simulators/common/BaseSimulatorDevice.py"
+    name: "BaseSimulatorDevice.BaseSimulatorDevice"
+server:
+  instances:
+    - name: "ctrl"
+      classes:
+      - name: "BaseSimulatorDevice"
+        devices:
+        - name: "sim-cbf/control/0"

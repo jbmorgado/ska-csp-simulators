@@ -1,0 +1,45 @@
+display: ":0"
+xauthority: "~/.Xauthority"
+
+global:
+  labels:
+    app: ska-csp-simulators
+  minikube: true
+  operator: true
+  tango_host: databaseds-tango-base-test:10000
+  sub-system:
+    ska-tango-base:
+      enabled: false
+
+ska-tango-base:
+  dsconfig:
+    timeout: 300s
+  tangodb:
+    use_pv: true
+  vnc:
+    enabled: false
+  tangorest:
+    enabled: false
+  ingress:
+    enabled: false
+  itango:
+    enabled: true
+  jive:
+    enabled: false
+  deviceServers: []
+
+ska-csp-simulators:
+  deviceServers:
+    enabled: true
+    servers:
+      ctrl:
+        enabled: true
+
+ska-taranta:
+  enabled: false
+
+ska-taranta-auth:
+  enabled: false
+
+ska-dashboard-repo:
+  enabled: false
