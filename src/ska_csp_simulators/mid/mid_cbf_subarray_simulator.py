@@ -9,10 +9,9 @@
 
 """ Simulator for the Mid subarray of a CSP sub-system
 """
-
 from __future__ import annotations
 
-import json
+import functools
 
 from ska_control_model import ObsState, ResultCode
 from tango import DebugIt
@@ -42,6 +41,7 @@ class MidCbfSubarraySimulator(SubarraySimulatorDevice):
         """Initialises the attributes and properties of the Motor."""
         super().init_device()
         self._receptors = []
+        self._assigned_resources = []
 
         # self._dev_factory = DevFactory()
         # PROTECTED REGION END #   //  Motor.init_device
@@ -49,11 +49,18 @@ class MidCbfSubarraySimulator(SubarraySimulatorDevice):
     # ----------
     # Attributes
     # ----------
-    @attribute(dtype=("str",))
+    @attribute(dtype=("str",), max_dim_x=197)
     def receptors(self):
         return self._receptors
 
-    @attribute(dtype="DevString")
+    @receptors.write
+    def receptors(self, value):
+        self._receptors = value
+
+    @attribute(
+        dtype=("str",),
+        max_dim_x=32,
+    )
     def assignedResources(self):
         return self._assigned_resources
 
@@ -65,23 +72,31 @@ class MidCbfSubarraySimulator(SubarraySimulatorDevice):
         """
         return self.Configure(argin)
 
+    @command(dtype_in=str, dtype_out="DevVarLongStringArray")
+    @DebugIt()
+    def AssignResources(self, argin: str) -> DevVarLongStringArrayType:
+        raise ValueError(
+            "AssignResources not used by Mid CBF. Use AddReceptors command"
+        )
+
     @command(dtype_in=("str",), dtype_out="DevVarLongStringArray")
     @DebugIt()
-    def AddReceptors(self, argin) -> DevVarLongStringArrayType:
+    def AddReceptors(self, receptors_list) -> DevVarLongStringArrayType:
         """
         Subarray assign resources
         """
 
-        def _assign_completed():
+        def _assign_completed(receptors_list):
             self.logger.info("Command AssignResources completed on device}")
             self.update_obs_state(ObsState.IDLE)
-            self._receptors = argin
+            self._receptors = receptors_list
+            self._assigned_resources = receptors_list
 
-        argin_dict = json.loads(argin)
-        self.logger.info(f"Call assign with argument: {argin_dict}")
+        self.logger.info(f"Call assign with argument: {receptors_list}")
         self.update_obs_state(ObsState.RESOURCING)
         result_code, msg = self.do(
-            "assign", completed=_assign_completed, argin=argin_dict
+            "assign",
+            completed=functools.partial(_assign_completed, receptors_list),
         )
         return ([result_code], [msg])
 

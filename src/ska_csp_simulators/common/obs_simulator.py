@@ -89,7 +89,6 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
             start_time = time.time()
             _call_task_callback(status=TaskStatus.IN_PROGRESS)
             while (time.time() - start_time) < self._time_to_complete:
-                self.logger.info(f"endscan_event: {task_abort_event.is_set()}")
                 if self._endscan_event and self._endscan_event.is_set():
                     _call_task_callback(status=TaskStatus.COMPLETED)
                     return
