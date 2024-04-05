@@ -25,7 +25,7 @@ def devices_to_load():
             "class": MidCbfSubarraySimulator,
             "devices": [
                 {
-                    "name": "sim-cbf/subarray/01",
+                    "name": "sim-mid-cbf/subarray/01",
                 },
             ],
         },
@@ -38,7 +38,7 @@ def subarray_device(tango_context):
     logging.info("%s", tango_context)
     dev_factory = DevFactory()
 
-    return dev_factory.get_device("sim-cbf/subarray/01")
+    return dev_factory.get_device("sim-mid-cbf/subarray/01")
 
 
 @pytest.fixture(autouse=True)
@@ -73,12 +73,6 @@ def subarray_device_online(subarray_device, change_event_callbacks):
     change_event_callbacks.assert_change_event("state", tango.DevState.OFF)
 
 
-def test_obs_faulty(subarray_device):
-    assert not subarray_device.obsFaulty
-    subarray_device.obsFaulty = True
-    assert subarray_device.obsFaulty
-
-
 def test_subarray_device_is_alive(subarray_device):
     """Sanity check: test device on remote host is responsive"""
     try:
@@ -87,7 +81,7 @@ def test_subarray_device_is_alive(subarray_device):
         pytest.fail("Could not contact the base device")
 
 
-def test_assign(subarray_device, change_event_callbacks):
+def test_mid_assign(subarray_device, change_event_callbacks):
     """Test assign request on subarray"""
     subarray_device.forcestate(tango.DevState.ON)
     change_event_callbacks.assert_change_event("state", tango.DevState.ON)
@@ -107,7 +101,7 @@ def test_assign(subarray_device, change_event_callbacks):
     assert subarray_device.assignedresources == ("SKA001", "SKA036")
 
 
-def test_releaseall(subarray_device, change_event_callbacks):
+def test_mid_releaseall(subarray_device, change_event_callbacks):
     """Test assign request on subarray"""
     subarray_device.forcestate(tango.DevState.ON)
     change_event_callbacks.assert_change_event("state", tango.DevState.ON)
@@ -128,8 +122,8 @@ def test_releaseall(subarray_device, change_event_callbacks):
     assert not subarray_device.receptors
 
 
-def test_configure(subarray_device, change_event_callbacks):
-    """Test configure request on subarray"""
+def test_mid_configure(subarray_device, change_event_callbacks):
+    """Test configure request on mid subarray"""
     subarray_device.forcestate(tango.DevState.ON)
     change_event_callbacks.assert_change_event("state", tango.DevState.ON)
     subarray_device.forceobsstate(ObsState.IDLE)

@@ -24,7 +24,7 @@ def devices_to_load():
             "class": MidCbfCtrlSimulator,
             "devices": [
                 {
-                    "name": "sim-cbf/control/0",
+                    "name": "sim-mid-cbf/control/0",
                 },
             ],
         },
@@ -37,7 +37,7 @@ def ctrl_device(tango_context):
     logging.info("%s", tango_context)
     dev_factory = DevFactory()
 
-    return dev_factory.get_device("sim-cbf/control/0")
+    return dev_factory.get_device("sim-mid-cbf/control/0")
 
 
 @pytest.fixture(autouse=True)

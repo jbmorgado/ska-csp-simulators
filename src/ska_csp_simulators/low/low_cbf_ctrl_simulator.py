@@ -11,8 +11,8 @@
 """
 from __future__ import annotations
 
-from ska_control_model import ResultCode
-from tango import DebugIt, DevVarLongStringArray
+from ska_control_model import HealthState, ResultCode
+from tango import DebugIt, DevState, DevVarLongStringArray
 from tango.server import command, run
 
 from ska_csp_simulators.common.base_simulator_device import BaseSimulatorDevice
@@ -27,6 +27,12 @@ class LowCbfCtrlSimulator(BaseSimulatorDevice):
     """
     Base simulator device
     """
+
+    def init_device(self):
+        """Initialises the attributes and properties of the Motor."""
+        super().init_device()
+        self._health_state = HealthState.UNKNOWN
+        self.set_state(DevState.ON)
 
     # ---------------
     # General methods
@@ -46,6 +52,33 @@ class LowCbfCtrlSimulator(BaseSimulatorDevice):
     @DebugIt()
     def On(self: LowCbfCtrlSimulator) -> DevVarLongStringArray:
         message = "Ignored ON, controller does not have hardware"
+        self.logger.error(message)
+        return [[ResultCode.REJECTED], [message]]
+
+    @command(
+        dtype_out="DevVarLongStringArray",
+    )
+    @DebugIt()
+    def Off(self: LowCbfCtrlSimulator) -> DevVarLongStringArray:
+        message = "Ignored OFF, controller does not have hardware"
+        self.logger.error(message)
+        return [[ResultCode.REJECTED], [message]]
+
+    @command(
+        dtype_out="DevVarLongStringArray",
+    )
+    @DebugIt()
+    def Standby(self: LowCbfCtrlSimulator) -> DevVarLongStringArray:
+        message = "Ignored STANDBY, controller does not have hardware"
+        self.logger.error(message)
+        return [[ResultCode.REJECTED], [message]]
+
+    @command(
+        dtype_out="DevVarLongStringArray",
+    )
+    @DebugIt()
+    def Reset(self: LowCbfCtrlSimulator) -> DevVarLongStringArray:
+        message = "Ignored RESET, controller does not have hardware"
         self.logger.error(message)
         return [[ResultCode.REJECTED], [message]]
 

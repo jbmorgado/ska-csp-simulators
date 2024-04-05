@@ -530,6 +530,16 @@ class BaseSimulatorDevice(Device):
         result_code, msg = self.do("off", _off_completed)
         return ([result_code], [msg])
 
+    @command(dtype_out="DevVarLongStringArray")
+    @DebugIt()
+    def Reset(self):
+        def _reset_completed():
+            self.logger.info("Command Reset completed on device}")
+            self.update_state(DevState.OFF)
+
+        result_code, msg = self.do("reset", _reset_completed, argin=None)
+        return ([result_code], [msg])
+
     @command(dtype_in="DevState")
     @DebugIt()
     def ForceState(self, value):

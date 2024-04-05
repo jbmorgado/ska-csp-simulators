@@ -42,7 +42,6 @@ class SubarraySimulatorDevice(ObsSimulatorDevice):
         self._obs_state = ObsState.EMPTY
 
         # self._dev_factory = DevFactory()
-        # PROTECTED REGION END #    //  Motor.init_device
 
     @command(dtype_in="DevString", dtype_out="DevVarLongStringArray")
     @DebugIt()

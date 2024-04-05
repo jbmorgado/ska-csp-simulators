@@ -102,6 +102,7 @@ def change_event_callbacks() -> MockTangoEventCallbackGroup:
         "obsState",
         "state",
         "healthState",
+        "channelBlockConfiguration",
         "longRunningCommandProgress",
         "longRunningCommandResult",
         "longRunningCommandStatus",
