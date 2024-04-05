@@ -31,10 +31,9 @@ from ska_control_model import (
     SimulationMode,
     TaskStatus,
 )
+from ska_tango_base.base import CommandTracker
 from tango import DebugIt, DevState
 from tango.server import Device, attribute, command, run
-
-from ska_csp_simulators.common.command_tracker import CommandTracker
 
 MAX_QUEUED_COMMANDS = 64
 MAX_REPORTED_COMMANDS = 2 * MAX_QUEUED_COMMANDS + 2
