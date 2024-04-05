@@ -139,7 +139,7 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
         Force the subarray observing state to the desired value
         """
         self.logger.info(
-            f"Force observing sate from {self._obs_state} to {value}"
+            f"Force observing state from {self._obs_state} to {value}"
         )
         self.update_obs_state(value)
 
