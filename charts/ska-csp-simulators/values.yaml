@@ -83,9 +83,20 @@ deviceServers:
   enabled: true
   servers:
     midctrl:
+      enabled: true
       file: "data/beginner/midctrl.yaml"
     midsubarray:
+      enabled: true
       file: "data/beginner/midsubarray.yaml"
+    lowctrl:
+      enabled: true
+      file: "data/beginner/lowctrl.yaml"
+    lowsubarray:
+      enabled: true
+      file: "data/beginner/lowsubarray.yaml"
+    lowpstbeam:
+      enabled: true
+      file: "data/beginner/lowpstbeam.yaml"
 
 nodeSelector: {}
 

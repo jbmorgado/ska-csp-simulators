@@ -8,14 +8,14 @@ server:
       classes:
       - name: "MidCbfSubarraySimulator"
         devices:
-        - name: "sim-cbf/subarray/01"
+        - name: "sim-mid-cbf/subarray/01"
     - name: "sub2"
       classes:
       - name: "MidCbfSubarraySimulator"
         devices:
-        - name: "sim-cbf/subarray/02"
+        - name: "sim-mid-cbf/subarray/02"
     - name: "sub3"
       classes:
       - name: "MidCbfSubarraySimulator"
         devices:
-        - name: "sim-cbf/subarray/03"
+        - name: "sim-mid-cbf/subarray/03"

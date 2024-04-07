@@ -8,4 +8,4 @@ server:
       classes:
       - name: "MidCbfCtrlSimulator"
         devices:
-        - name: "sim-cbf/control/0"
+        - name: "sim-mid-cbf/control/0"

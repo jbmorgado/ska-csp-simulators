@@ -107,6 +107,14 @@ PYTHON_BUILD_TYPE = non_tag_setup
 
 PYTHON_SWITCHES_FOR_FLAKE8=--ignore=F401,W503 --max-line-length=180
 
+VALUES_FILE ?= charts/mid-csp-umbrella/values-default.yaml
+CUSTOM_VALUES =
+
+ifneq ($(VALUES_FILE),)
+CUSTOM_VALUES := --values $(VALUES_FILE) 
+else
+endif
+
 ifneq ($(CI_REGISTRY),)
 K8S_TEST_TANGO_IMAGE_PARAMS = --set ska-csp-simulators.simul.image.tag=$(VERSION)-dev.c$(CI_COMMIT_SHORT_SHA) \
 	--set ska-csp-simulators.simul.image.registry=$(CI_REGISTRY)/ska-telescope/ska-csp-simulators \
@@ -129,18 +137,6 @@ TARANTA_PARAMS = --set ska-taranta.enabled=$(TARANTA) \
 endif
 endif
 
-# This examples are expected to fail, therefore they need to be removed
-# so that k8s-wait and k8s-test targets pass, as they do not support negative
-# tests
-ifneq ($(CI_JOB_ID),local)
-SKIP_TANGO_EXAMPLES_PARAMS = --set ska-csp-simulators.deviceServers.servers.conflictdeployment.enabled=false \
-							--set ska-csp-simulators.deviceServers.servers.conflict.enabled=false \
-							--set ska-csp-simulators.deviceServers.servers.incorrectconfiguration.enabled=false \
-							--set ska-csp-simulators.deviceServers.servers.circulardependency.enabled=false \
-							--set ska-csp-simulators.deviceServers.servers.notangohost.enabled=false
-else
-SKIP_TANGO_EXAMPLES_PARAMS =
-endif
 
 K8S_EXTRA_PARAMS ?=
 K8S_CHART_PARAMS = --set global.minikube=$(MINIKUBE) \
@@ -155,8 +151,8 @@ K8S_CHART_PARAMS = --set global.minikube=$(MINIKUBE) \
 	--set ska-tango-base.itango.enabled=$(ITANGO_ENABLED) \
 	$(TARANTA_PARAMS) \
 	${K8S_TEST_TANGO_IMAGE_PARAMS} \
-	${SKIP_TANGO_EXAMPLES_PARAMS} \
-	$(K8S_EXTRA_PARAMS)
+	$(K8S_EXTRA_PARAMS) \
+	$(CUSTOM_VALUES)
 
 
 # override python.mk python-pre-test target

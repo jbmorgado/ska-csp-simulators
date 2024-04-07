@@ -66,6 +66,11 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
             self._obs_state = value
             self.push_change_event("obsState", value)
 
+    def check_obs_faulty(self):
+        if self._obs_faulty:
+            self.ForceObsState(ObsState.FAULT)
+            self._obs_faulty = False
+
     def _simulate_task_execution(
         self,
         task_callback,
@@ -98,11 +103,11 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
                     return
 
                 if self._obs_faulty:
-                    self.ForceObsState(ObsState.FAULT)
                     _call_task_callback(
                         status=TaskStatus.COMPLETED, result=ResultCode.FAILED
                     )
-                    self._obs_faulty = False
+                    # self.ForceObsState(ObsState.FAULT)
+                    # self._obs_faulty = False
                     return
                 time.sleep(0.1)
 
@@ -153,7 +158,9 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
 
         def _configure_completed():
             self.logger.info("Command Configure completed on device}")
-            if not self._abort_event.set():
+            if self._obs_faulty:
+                return self.check_obs_faulty()
+            if not self._abort_event.set() and not self._obs_faulty:
                 self.update_obs_state(ObsState.READY)
 
         argin_dict = json.loads(argin)
@@ -166,10 +173,16 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
     @command(dtype_in=str, dtype_out="DevVarLongStringArray")
     @DebugIt()
     def Scan(self, argin):
+        def _scan_completed():
+            if self._obs_faulty:
+                self.check_obs_faulty()
+
         self.check_raise_exception()
         argin_dict = json.loads(argin)
         self.update_obs_state(ObsState.SCANNING)
-        result_code, msg = self.do("scan", argin=argin_dict)
+        result_code, msg = self.do(
+            "scan", completed=_scan_completed, argin=argin_dict
+        )
         return ([result_code], [msg])
 
     @command(dtype_out="DevVarLongStringArray")
@@ -224,6 +237,16 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
         result_code, _ = ResultCode.STARTED, "Abort invoked"
         threading.Thread(target=_abort).start()
         return ([result_code], [command_id])
+
+    @command(dtype_out="DevVarLongStringArray")
+    @DebugIt()
+    def Restart(self):
+        def _restart():
+            self.update_obs_state(ObsState.EMPTY)
+
+        self.update_obs_state(ObsState.RESTARTING)
+        result_code, msg = self.do("restart", completed=_restart)
+        return ([result_code], [msg])
 
 
 # ----------

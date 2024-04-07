@@ -33,15 +33,15 @@ ska-csp-simulators:
     enabled: true
     servers:
       midctrl:
-        enabled: true
+        enabled: false
       midsubarray:
-        enabled: true
+        enabled: false
       lowctrl:
-        enabled: false
+        enabled: true 
       lowsubarray:
-        enabled: false
+        enabled: true 
       lowpstbeam:
-        enabled: false
+        enabled: true
 
 ska-taranta:
   enabled: false
