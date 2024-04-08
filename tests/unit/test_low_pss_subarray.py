@@ -5,32 +5,27 @@ Some simple unit tests of the PowerSupply device, exercising the device from
 another host using a DeviceProxy.
 """
 import logging
-import time
 
 import pytest
 import tango
-from ska_control_model import AdminMode, HealthState, ObsState, ResultCode
+from ska_control_model import AdminMode, HealthState, ObsState
 
 from ska_csp_simulators.DevFactory import DevFactory
-from ska_csp_simulators.low.low_cbf_subarray_simulator import (
-    LowCbfSubarraySimulator,
+from ska_csp_simulators.low.low_pss_subarray_simulator import (
+    LowPssSubarraySimulator,
 )
 
 module_logger = logging.getLogger(__name__)
-
-
-def print_evt(evt):
-    module_logger.info(evt)
 
 
 @pytest.fixture()
 def devices_to_load():
     return (
         {
-            "class": LowCbfSubarraySimulator,
+            "class": LowPssSubarraySimulator,
             "devices": [
                 {
-                    "name": "sim-low-cbf/subarray/01",
+                    "name": "sim-low-pss/subarray/01",
                 },
             ],
         },
@@ -43,7 +38,7 @@ def subarray_device(tango_context):
     logging.info("%s", tango_context)
     dev_factory = DevFactory()
 
-    return dev_factory.get_device("sim-low-cbf/subarray/01")
+    return dev_factory.get_device("sim-low-pss/subarray/01")
 
 
 @pytest.fixture(autouse=True)
@@ -64,9 +59,7 @@ def subarray_device_online(subarray_device, change_event_callbacks):
         )
     change_event_callbacks.assert_change_event("state", tango.DevState.DISABLE)
     change_event_callbacks.assert_change_event("adminMode", AdminMode.OFFLINE)
-    change_event_callbacks.assert_change_event(
-        "healthState", HealthState.UNKNOWN
-    )
+    change_event_callbacks.assert_change_event("healthState", HealthState.OK)
     change_event_callbacks.assert_change_event("obsState", ObsState.EMPTY)
     change_event_callbacks.assert_change_event(
         "longRunningCommandProgress", ()
@@ -77,7 +70,7 @@ def subarray_device_online(subarray_device, change_event_callbacks):
     )
     subarray_device.adminmode = 0
     change_event_callbacks.assert_change_event("adminMode", AdminMode.ONLINE)
-    change_event_callbacks.assert_change_event("state", tango.DevState.ON)
+    change_event_callbacks.assert_change_event("state", tango.DevState.OFF)
 
 
 def test_subarray_device_is_alive(subarray_device):
@@ -86,24 +79,3 @@ def test_subarray_device_is_alive(subarray_device):
         subarray_device.ping()
     except tango.ConnectionFailed:
         pytest.fail("Could not contact the base device")
-
-
-def test_end(subarray_device, change_event_callbacks):
-    """Test scan request on subarray"""
-    # subarray_device.forcestate(tango.DevState.ON)
-    # change_event_callbacks.assert_change_event("state", tango.DevState.ON)
-
-    subarray_device.forceobsstate(ObsState.READY)
-    change_event_callbacks.assert_change_event("obsState", ObsState.READY)
-    time.sleep(2)
-    assert subarray_device.obsState == ObsState.READY
-    [[result_code], [command_id]] = subarray_device.End()
-    assert result_code == ResultCode.QUEUED
-
-    change_event_callbacks.assert_change_event(
-        "longRunningCommandStatus", (command_id, "IN_PROGRESS")
-    )
-    change_event_callbacks.assert_change_event(
-        "longRunningCommandStatus", (command_id, "COMPLETED")
-    )
-    change_event_callbacks.assert_change_event("obsState", ObsState.IDLE)

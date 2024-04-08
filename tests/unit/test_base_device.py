@@ -55,7 +55,7 @@ def base_device_online(base_device, change_event_callbacks):
             change_event_callbacks[attribute],
             # print_event
         )
-    change_event_callbacks.assert_change_event("state", tango.DevState.UNKNOWN)
+    change_event_callbacks.assert_change_event("state", tango.DevState.DISABLE)
     change_event_callbacks.assert_change_event("adminMode", AdminMode.OFFLINE)
     change_event_callbacks.assert_change_event("healthState", HealthState.OK)
     change_event_callbacks.assert_change_event(
@@ -95,6 +95,18 @@ def test_health_state(base_device, change_event_callbacks):
     change_event_callbacks.assert_change_event(
         "healthState", HealthState.DEGRADED
     )
+
+
+def test_faulty_in_command(base_device):
+    assert not base_device.faultyInCommand
+    base_device.faultyInCommand = True
+    assert base_device.faultyInCommand
+
+
+def test_raise_exception(base_device):
+    assert not base_device.raiseException
+    base_device.raiseException = True
+    assert base_device.raiseException
 
 
 def test_turn_on(base_device, change_event_callbacks):

@@ -1,0 +1,21 @@
+instances: ["sub1", "sub2", "sub3"]
+entrypoints:
+  - path: "/app/src/ska_csp_simulators/mid/mid_pss_subarray_simulator.py"
+    name: "MidPssSubarraySimulator"
+server:
+  instances:
+    - name: "sub1"
+      classes:
+      - name: "MidPssSubarraySimulator"
+        devices:
+        - name: "sim-mid-pss/subarray/01"
+    - name: "sub2"
+      classes:
+      - name: "MidPssSubarraySimulator"
+        devices:
+        - name: "sim-mid-pss/subarray/02"
+    - name: "sub3"
+      classes:
+      - name: "MidPssSubarraySimulator"
+        devices:
+        - name: "sim-mid-pss/subarray/03"

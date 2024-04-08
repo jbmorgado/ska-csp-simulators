@@ -32,11 +32,24 @@ class LowCbfCtrlSimulator(BaseSimulatorDevice):
         """Initialises the attributes and properties of the Motor."""
         super().init_device()
         self._health_state = HealthState.UNKNOWN
-        self.set_state(DevState.ON)
 
     # ---------------
     # General methods
     # ---------------
+    def set_communication(
+        self: LowCbfCtrlSimulator,
+        end_state,
+        end_health,
+        connecting: bool,
+    ):
+        """
+        Override the behavior of the method to set different
+        values fot the State and healthState of the device.
+        """
+        if connecting:
+            super().set_communication(
+                DevState.ON, HealthState.UNKNOWN, connecting
+            )
 
     # ----------
     # Attributes

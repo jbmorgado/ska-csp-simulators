@@ -46,8 +46,6 @@ DevVarLongStringArrayType = tuple[list[ResultCode], list[str]]
 # pylint: disable=logging-fstring-interpolation
 # pylint: disable=unused-argument
 
-logging.basicConfig(level=logging.INFO)
-
 
 class BaseSimulatorDevice(Device):
     """
@@ -82,7 +80,7 @@ class BaseSimulatorDevice(Device):
         self._command_result: tuple[str, str] = ("", "")
         self._time_to_complete = 0.4
         self._time_to_return = 0.05
-        self._faulty = False
+        self._faulty_in_command = False
         self._raise_exception = False
         self._abort_event = threading.Event()
         self._command_tracker = CommandTracker(
@@ -106,7 +104,7 @@ class BaseSimulatorDevice(Device):
             "longRunningCommandResult",
         ]:
             self.set_change_event(attribute_name, True)
-        self.update_state(DevState.UNKNOWN)
+        self.update_state(DevState.DISABLE)
         self.logger.info("Device ready!")
 
         # self._dev_factory = DevFactory()
@@ -139,7 +137,12 @@ class BaseSimulatorDevice(Device):
             self._admin_mode = value
             self.push_change_event("adminmode", value)
 
-    def set_communication(self: BaseSimulatorDevice, connecting: bool):
+    def set_communication(
+        self: BaseSimulatorDevice,
+        end_state: DevState,
+        end_health: HealthState,
+        connecting: bool,
+    ):
         """
         Enable or disable the connection with the system under control.
         """
@@ -157,8 +160,8 @@ class BaseSimulatorDevice(Device):
             if adminmode == AdminMode.ONLINE:
                 self.logger.info("Communication established!")
                 self.update_admin_mode(AdminMode.ONLINE)
-                self.update_state(DevState.OFF)
-                self.update_health_state(HealthState.OK)
+                self.update_state(end_state)
+                self.update_health_state(end_health)
             else:
                 self.logger.info("System disconnected!")
                 self.update_admin_mode(AdminMode.OFFLINE)
@@ -171,7 +174,6 @@ class BaseSimulatorDevice(Device):
             )
         else:
             if self._admin_mode != AdminMode.OFFLINE:
-                # return self.update_state(DevState.DISABLE)
                 thread_id = threading.Thread(
                     target=_end_communicating, args=(AdminMode.OFFLINE, 1)
                 )
@@ -329,7 +331,7 @@ class BaseSimulatorDevice(Device):
 
     def check_raise_exception(self):
         if self._raise_exception:
-            self._raise_exception = True
+            self._raise_exception = False
             self.logger.error("Raised exception!")
             raise ValueError("Error in executing command")
 
@@ -337,12 +339,12 @@ class BaseSimulatorDevice(Device):
     # Attributes
     # ----------
     @attribute(dtype="DevBoolean")
-    def faulty(self):
-        return self._faulty
+    def faultyInCommand(self):
+        return self._faulty_in_command
 
-    @faulty.write
-    def faulty(self, value: bool):
-        self._faulty = value
+    @faultyInCommand.write
+    def faultyInCommand(self, value: bool):
+        self._faulty_in_command = value
 
     @attribute(dtype="DevBoolean")
     def raiseException(self):
@@ -352,7 +354,7 @@ class BaseSimulatorDevice(Device):
     def raiseException(self, value: bool):
         self._raise_exception = value
 
-    @attribute(dtype="DevUShort")
+    @attribute(dtype="DevFloat")
     def timeToComplete(self):
         return self._time_to_complete
 
@@ -392,7 +394,11 @@ class BaseSimulatorDevice(Device):
         else:
             # self.update_admin_mode(value)
             enable_communication = value == AdminMode.ONLINE
-            self.set_communication(enable_communication)
+            self.set_communication(
+                DevState.OFF,
+                HealthState.OK,
+                enable_communication,
+            )
 
     @attribute(dtype=HealthState)
     def healthState(self: BaseSimulatorDevice) -> HealthState:

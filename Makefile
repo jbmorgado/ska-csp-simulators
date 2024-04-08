@@ -107,7 +107,7 @@ PYTHON_BUILD_TYPE = non_tag_setup
 
 PYTHON_SWITCHES_FOR_FLAKE8=--ignore=F401,W503 --max-line-length=180
 
-VALUES_FILE ?= charts/mid-csp-umbrella/values-default.yaml
+VALUES_FILE ?= charts/test-parent/values.yaml
 CUSTOM_VALUES =
 
 ifneq ($(VALUES_FILE),)

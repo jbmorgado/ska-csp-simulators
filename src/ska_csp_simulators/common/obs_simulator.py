@@ -66,10 +66,9 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
             self._obs_state = value
             self.push_change_event("obsState", value)
 
-    def check_obs_faulty(self):
-        if self._obs_faulty:
-            self.ForceObsState(ObsState.FAULT)
-            self._obs_faulty = False
+    # def check_obs_faulty(self):
+    #     if self._obs_faulty:
+    #         self.ForceObsState(ObsState.FAULT)
 
     def _simulate_task_execution(
         self,
@@ -79,6 +78,7 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
     ) -> None:
         # Simulate the synchronous latency cost of communicating with this component.
         self._simulate_latency()
+        self.logger.info("Call to simulate task execution")
 
         def simulate_async_task_execution() -> None:
             def _call_task_callback(*args: Any, **kwargs: Any) -> None:
@@ -102,12 +102,12 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
                     self.update_obs_state(ObsState.ABORTED)
                     return
 
-                if self._obs_faulty:
+                if self._obs_faulty or self._faulty_in_command:
                     _call_task_callback(
                         status=TaskStatus.COMPLETED, result=ResultCode.FAILED
                     )
-                    # self.ForceObsState(ObsState.FAULT)
-                    # self._obs_faulty = False
+                    if self._faulty_in_command:
+                        self._faulty_in_command = 0
                     return
                 time.sleep(0.1)
 
@@ -159,8 +159,14 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
         def _configure_completed():
             self.logger.info("Command Configure completed on device}")
             if self._obs_faulty:
-                return self.check_obs_faulty()
-            if not self._abort_event.set() and not self._obs_faulty:
+                return self.update_obs_state(ObsState.FAULT)
+            if self._faulty_in_command:
+                self.update_obs_state(ObsState.IDLE)
+            if (
+                not self._abort_event.is_set()
+                and not self._obs_faulty
+                and not self._faulty_in_command
+            ):
                 self.update_obs_state(ObsState.READY)
 
         argin_dict = json.loads(argin)
@@ -175,7 +181,9 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
     def Scan(self, argin):
         def _scan_completed():
             if self._obs_faulty:
-                self.check_obs_faulty()
+                self.update_obs_state(ObsState.FAULT)
+            if self._faulty_in_command:
+                self.update_obs_state(ObsState.READY)
 
         self.check_raise_exception()
         argin_dict = json.loads(argin)
@@ -242,11 +250,22 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
     @DebugIt()
     def Restart(self):
         def _restart():
+            self.logger.info("Call _restart")
+            self._command_tracker.update_command_info(
+                command_id, status=TaskStatus.IN_PROGRESS
+            )
+            time.sleep(0.2)
+            self._command_tracker.update_command_info(
+                command_id, status=TaskStatus.COMPLETED
+            )
+            self._abort_event.clear()
+            self._obs_faulty = False
             self.update_obs_state(ObsState.EMPTY)
 
         self.update_obs_state(ObsState.RESTARTING)
-        result_code, msg = self.do("restart", completed=_restart)
-        return ([result_code], [msg])
+        command_id = self._command_tracker.new_command("restart")
+        threading.Thread(target=_restart).start()
+        return ([ResultCode.QUEUED], [command_id])
 
 
 # ----------

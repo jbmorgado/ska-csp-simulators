@@ -1,0 +1,21 @@
+instances: ["sub1", "sub2", "sub3"]
+entrypoints:
+  - path: "/app/src/ska_csp_simulators/low/low_pss_subarray_simulator.py"
+    name: "LowPssSubarraySimulator"
+server:
+  instances:
+    - name: "sub1"
+      classes:
+      - name: "LowPssSubarraySimulator"
+        devices:
+        - name: "sim-low-pss/subarray/01"
+    - name: "sub2"
+      classes:
+      - name: "LowPssSubarraySimulator"
+        devices:
+        - name: "sim-low-pss/subarray/02"
+    - name: "sub3"
+      classes:
+      - name: "LowPssSubarraySimulator"
+        devices:
+        - name: "sim-low-pss/subarray/03"

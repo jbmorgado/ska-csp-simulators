@@ -13,8 +13,8 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from ska_control_model import ResultCode
-from tango import DebugIt
+from ska_control_model import HealthState, ResultCode
+from tango import DebugIt, DevState
 from tango.server import attribute, command, run
 
 from ska_csp_simulators.common.subarray_simulator import (
@@ -40,6 +40,7 @@ class LowCbfSubarraySimulator(SubarraySimulatorDevice):
     def init_device(self):
         """Initialises the attributes and properties of the Motor."""
         super().init_device()
+        self._health_state = HealthState.UNKNOWN
         self._stations = defaultdict(set)
         self._pstBeams = defaultdict(set)
         self._pssBeams = defaultdict(set)
@@ -81,6 +82,17 @@ class LowCbfSubarraySimulator(SubarraySimulatorDevice):
     def pstBeams(self):
         """Return the pstBeams attribute."""
         return str(self._pst_beams)
+
+    def set_communication(
+        self: LowCbfSubarraySimulator,
+        end_state: DevState,
+        end_health: HealthState,
+        connecting: bool,
+    ):
+        if connecting:
+            super().set_communication(
+                DevState.ON, HealthState.UNKNOWN, connecting
+            )
 
     @command(dtype_out="DevVarLongStringArray")
     @DebugIt()

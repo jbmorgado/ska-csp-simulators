@@ -82,18 +82,30 @@ resources:
 deviceServers:
   enabled: true
   servers:
-    midctrl:
+    midcbfctrl:
       enabled: true
-      file: "data/beginner/midctrl.yaml"
-    midsubarray:
+      file: "data/beginner/midcbfctrl.yaml"
+    midcbfsubarray:
       enabled: true
-      file: "data/beginner/midsubarray.yaml"
-    lowctrl:
+      file: "data/beginner/midcbfsubarray.yaml"
+    midpssctrl:
       enabled: true
-      file: "data/beginner/lowctrl.yaml"
-    lowsubarray:
+      file: "data/beginner/midpssctrl.yaml"
+    midpsssubarray:
       enabled: true
-      file: "data/beginner/lowsubarray.yaml"
+      file: "data/beginner/midpsssubarray.yaml"
+    lowcbfctrl:
+      enabled: true
+      file: "data/beginner/lowcbfctrl.yaml"
+    lowcbfsubarray:
+      enabled: true
+      file: "data/beginner/lowcbfsubarray.yaml"
+    lowpssctrl:
+      enabled: true
+      file: "data/beginner/lowpssctrl.yaml"
+    lowpsssubarray:
+      enabled: true
+      file: "data/beginner/lowpsssubarray.yaml"
     lowpstbeam:
       enabled: true
       file: "data/beginner/lowpstbeam.yaml"

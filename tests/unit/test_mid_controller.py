@@ -56,7 +56,7 @@ def ctrl_device_online(ctrl_device, change_event_callbacks):
             change_event_callbacks[attribute],
             # print_event
         )
-    change_event_callbacks.assert_change_event("state", tango.DevState.UNKNOWN)
+    change_event_callbacks.assert_change_event("state", tango.DevState.DISABLE)
     change_event_callbacks.assert_change_event("adminMode", AdminMode.OFFLINE)
     change_event_callbacks.assert_change_event("healthState", HealthState.OK)
     change_event_callbacks.assert_change_event(

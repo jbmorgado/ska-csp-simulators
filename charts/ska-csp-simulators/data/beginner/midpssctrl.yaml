@@ -1,0 +1,11 @@
+instances: ["ctrl"]
+entrypoints:
+  - path: "/app/src/ska_csp_simulators/mid/mid_pss_ctrl_simulator.py"
+    name: "MidPssCtrlSimulator"
+server:
+  instances:
+    - name: "ctrl"
+      classes:
+      - name: "MidPssCtrlSimulator"
+        devices:
+        - name: "sim-mid-pss/control/0"

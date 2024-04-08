@@ -8,10 +8,10 @@ import logging
 
 import pytest
 import tango
-from ska_control_model import AdminMode, HealthState, ResultCode
+from ska_control_model import AdminMode, HealthState
 
 from ska_csp_simulators.DevFactory import DevFactory
-from ska_csp_simulators.low.low_cbf_ctrl_simulator import LowCbfCtrlSimulator
+from ska_csp_simulators.low.low_pss_ctrl_simulator import LowPssCtrlSimulator
 
 module_logger = logging.getLogger(__name__)
 
@@ -20,10 +20,10 @@ module_logger = logging.getLogger(__name__)
 def devices_to_load():
     return (
         {
-            "class": LowCbfCtrlSimulator,
+            "class": LowPssCtrlSimulator,
             "devices": [
                 {
-                    "name": "sim-low-cbf/control/0",
+                    "name": "sim-low-pss/control/0",
                 },
             ],
         },
@@ -36,7 +36,7 @@ def ctrl_device(tango_context):
     logging.info("%s", tango_context)
     dev_factory = DevFactory()
 
-    return dev_factory.get_device("sim-low-cbf/control/0")
+    return dev_factory.get_device("sim-low-pss/control/0")
 
 
 @pytest.fixture(autouse=True)
@@ -58,7 +58,7 @@ def ctrl_device_online(ctrl_device, change_event_callbacks):
     change_event_callbacks.assert_change_event("state", tango.DevState.DISABLE)
     change_event_callbacks.assert_change_event("adminMode", AdminMode.OFFLINE)
     change_event_callbacks.assert_change_event(
-        "healthState", HealthState.UNKNOWN
+        "healthState", HealthState.UNKNOWNOK
     )
     change_event_callbacks.assert_change_event(
         "longRunningCommandProgress", ()
@@ -69,22 +69,4 @@ def ctrl_device_online(ctrl_device, change_event_callbacks):
     )
     ctrl_device.adminmode = 0
     change_event_callbacks.assert_change_event("adminMode", AdminMode.ONLINE)
-    assert ctrl_device.state() == tango.DevState.ON
-
-
-def test_turn_low_ctrl_on(ctrl_device):
-    """Test device sets current on request"""
-    result_code, _ = ctrl_device.On()
-    assert result_code[0] == ResultCode.REJECTED
-
-
-def test_turn_low_ctrl_off(ctrl_device):
-    """Test device sets current off request"""
-    result_code, _ = ctrl_device.Off()
-    assert result_code[0] == ResultCode.REJECTED
-
-
-def test_low_ctrl_reset(ctrl_device):
-    """Test device sets current reset request"""
-    result_code, _ = ctrl_device.Reset()
-    assert result_code[0] == ResultCode.REJECTED
+    assert ctrl_device.state() == tango.DevState.OFF

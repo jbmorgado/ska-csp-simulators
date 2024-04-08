@@ -58,7 +58,7 @@ def subarray_device_online(subarray_device, change_event_callbacks):
             tango.EventType.CHANGE_EVENT,
             change_event_callbacks[attribute],
         )
-    change_event_callbacks.assert_change_event("state", tango.DevState.UNKNOWN)
+    change_event_callbacks.assert_change_event("state", tango.DevState.DISABLE)
     change_event_callbacks.assert_change_event("adminMode", AdminMode.OFFLINE)
     change_event_callbacks.assert_change_event("healthState", HealthState.OK)
     change_event_callbacks.assert_change_event("obsState", ObsState.EMPTY)
@@ -266,3 +266,51 @@ def test_obsfaulty_while_scanning(subarray_device, change_event_callbacks):
     )
 
     change_event_callbacks.assert_change_event("obsState", ObsState.FAULT)
+    [[result_code], [restart_id]] = subarray_device.Restart()
+    assert result_code == ResultCode.QUEUED
+    change_event_callbacks.assert_change_event("obsState", ObsState.RESTARTING)
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus",
+        (command_id, "COMPLETED", restart_id, "IN_PROGRESS"),
+    )
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus",
+        (command_id, "COMPLETED", restart_id, "COMPLETED"),
+    )
+    change_event_callbacks.assert_change_event("obsState", ObsState.EMPTY)
+    assert not subarray_device.obsFaulty
+
+
+def test_faulty_while_configuring(subarray_device, change_event_callbacks):
+    """Test ObsState.FAULT  while scanning"""
+    assert subarray_device.state() == tango.DevState.OFF
+    assert subarray_device.obsstate == ObsState.EMPTY
+    subarray_device.forcestate(tango.DevState.ON)
+    change_event_callbacks.assert_change_event("state", tango.DevState.ON)
+    subarray_device.forceobsstate(ObsState.READY)
+    change_event_callbacks.assert_change_event("obsState", ObsState.READY)
+    subarray_device.timeToComplete = 5
+    assert subarray_device.timeToComplete == 5
+    [[result_code], [command_id]] = subarray_device.Configure(
+        '{"subarray_id":1}'
+    )
+    assert result_code == ResultCode.QUEUED
+
+    change_event_callbacks.assert_change_event(
+        "obsState", ObsState.CONFIGURING
+    )
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "IN_PROGRESS")
+    )
+
+    time.sleep(0.3)
+    subarray_device.faultyInCommand = True
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandResult",
+        (command_id, "3"),
+    )
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus",
+        (command_id, "COMPLETED"),
+    )
+    change_event_callbacks.assert_change_event("obsState", ObsState.IDLE)

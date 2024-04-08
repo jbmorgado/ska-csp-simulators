@@ -32,13 +32,21 @@ ska-csp-simulators:
   deviceServers:
     enabled: true
     servers:
-      midctrl:
+      midcbfctrl:
         enabled: true
-      midsubarray:
+      midcbfsubarray:
         enabled: true
-      lowctrl:
+      midpssctrl:
+        enabled: true
+      midpsssubarray:
+        enabled: true
+      lowcbfctrl:
         enabled: false
-      lowsubarray:
+      lowcbfsubarray:
+        enabled: false
+      lowpssctrl:
+        enabled: false
+      lowpsssubarray:
         enabled: false
       lowpstbeam:
         enabled: false
