@@ -102,7 +102,14 @@ class MidCbfSubarraySimulator(SubarraySimulatorDevice):
 
     @command(dtype_out="DevVarLongStringArray")
     @DebugIt()
-    def ReleaseAllReceptors(
+    def ReleaseAllResources(self, argin: str) -> DevVarLongStringArrayType:
+        raise ValueError(
+            "ReleaseAllResources not used by Mid CBF. Use AddReceptors command"
+        )
+
+    @command(dtype_out="DevVarLongStringArray")
+    @DebugIt()
+    def RemoveAllReceptors(
         self: MidCbfSubarraySimulator,
     ) -> DevVarLongStringArrayType:
         def _releaseall_completed():

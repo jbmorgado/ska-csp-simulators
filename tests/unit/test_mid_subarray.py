@@ -109,7 +109,7 @@ def test_mid_releaseall(subarray_device, change_event_callbacks):
     change_event_callbacks.assert_change_event("obsState", ObsState.IDLE)
     subarray_device.receptors = ["SKA002", "SKA005"]
     assert subarray_device.receptors
-    [[result_code], [command_id]] = subarray_device.ReleaseAllReceptors()
+    [[result_code], [command_id]] = subarray_device.RemoveAllReceptors()
     assert result_code == ResultCode.QUEUED
     change_event_callbacks.assert_change_event("obsState", ObsState.RESOURCING)
     change_event_callbacks.assert_change_event(
