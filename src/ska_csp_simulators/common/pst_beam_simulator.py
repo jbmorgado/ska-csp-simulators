@@ -72,7 +72,7 @@ class PstBeamSimulatorDevice(ObsSimulatorDevice):
 
         def _configure_completed():
             self.logger.info("Command Configure completed on device}")
-            if not self._abort_event.set():
+            if not self._abort_event.is_set():
                 self.update_obs_state(ObsState.READY)
                 with open(
                     "./tests/test_data/pst_channel_block_config.json",
