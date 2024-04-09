@@ -5,10 +5,9 @@ Change Log
 All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
-[Unreleased]
-************
+Latest pre-release
+------------------
 
-Added
+0.1.0
 -----
-
-* Empty Python project directory structure
+First implementation of ska-csp-simulators as a separate project
