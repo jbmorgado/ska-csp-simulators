@@ -1,0 +1,11 @@
+instances: ["ctrl"]
+entrypoints:
+  - path: "/app/src/ska_csp_simulators/low/low_cbf_ctrl_simulator.py"
+    name: "LowCbfCtrlSimulator"
+server:
+  instances:
+    - name: "ctrl"
+      classes:
+      - name: "LowCbfCtrlSimulator"
+        devices:
+        - name: "sim-low-cbf/control/0"

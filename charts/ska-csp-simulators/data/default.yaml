@@ -1,0 +1,16 @@
+name: "{{ .name }}-{{.Release.Name}}"
+function: ska-csp-simulators-{{ .name }}
+domain: ska-csp-simulators
+depends_on:
+  - device: sys/database/2
+server:
+  name: "{{ .name }}"
+image:
+  registry: "{{ .Values.simul.image.registry }}"
+  image: "{{ .Values.simul.image.image }}"
+  tag: "{{ .Values.simul.image.tag }}"
+  pullPolicy: "{{ .Values.simul.image.pullPolicy }}"
+livenessProbe:
+{{ toYaml .Values.livenessProbe | indent 2 }}
+readinessProbe:
+{{ toYaml .Values.readinessProbe | indent 2 }}

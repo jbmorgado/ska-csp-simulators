@@ -1,0 +1,17 @@
+{
+    "num_channel_blocks": 2,
+    "channel_blocks": [
+        {
+            "destination_host": "10.10.0.1",
+            "destination_port": 20000,
+            "start_pst_channel": 0,
+            "num_pst_channels": 12
+        },
+        {
+            "destination_host": "10.10.0.1",
+            "destination_port": 20001,
+            "start_pst_channel": 12,
+            "num_pst_channels": 10
+        }
+    ]
+}
