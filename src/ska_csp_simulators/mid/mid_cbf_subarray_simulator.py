@@ -14,7 +14,7 @@ from __future__ import annotations
 import functools
 
 from ska_control_model import ObsState, ResultCode
-from tango import DebugIt
+from tango import DebugIt, DevState
 from tango.server import attribute, command, run
 
 from ska_csp_simulators.common.subarray_simulator import (
@@ -64,6 +64,25 @@ class MidCbfSubarraySimulator(SubarraySimulatorDevice):
     def assignedResources(self):
         return self._assigned_resources
 
+    def is_ConfigureScan_allowed(self: MidCbfSubarraySimulator) -> bool:
+        """
+        Return whether `Configure` may be called in the current device state.
+
+        :raises ValueError: command not permitted in observation state
+
+        :return: whether the command may be called in the current device
+            state
+        """
+        if (
+            self._obs_state not in [ObsState.IDLE, ObsState.READY]
+            or self.get_state() != DevState.ON
+        ):
+            raise ValueError(
+                "ConfigureScan command not permitted in observation state "
+                f"{ObsState(self._obs_state).name} or state {self.get_state()}"
+            )
+        return True
+
     @command(dtype_in="DevString", dtype_out="DevVarLongStringArray")
     @DebugIt()
     def ConfigureScan(self, argin) -> DevVarLongStringArrayType:
@@ -78,6 +97,29 @@ class MidCbfSubarraySimulator(SubarraySimulatorDevice):
         raise ValueError(
             "AssignResources not used by Mid CBF. Use AddReceptors command"
         )
+
+    def is_AddReceptors_allowed(self: MidCbfSubarraySimulator) -> bool:
+        """
+        Return whether the `AddReceptors` command may be called in the current state.
+
+        :raises ValueError: command not permitted in observation state
+
+        :return: whether the command may be called in the current device
+            state
+        """
+        # If we return False here, Tango will raise an exception that incorrectly blames
+        # refusal on device state.
+        # e.g. "AssignResources not allowed when the device is in ON state".
+        # So let's raise an exception ourselves.
+        if (
+            self._obs_state not in [ObsState.EMPTY, ObsState.IDLE]
+            or self.get_state() != DevState.ON
+        ):
+            raise ValueError(
+                "AddReceptors command not permitted in observation state "
+                f"{ObsState(self._obs_state).name} or state {self.get_state()}"
+            )
+        return True
 
     @command(dtype_in=("str",), dtype_out="DevVarLongStringArray")
     @DebugIt()
@@ -106,6 +148,26 @@ class MidCbfSubarraySimulator(SubarraySimulatorDevice):
         raise ValueError(
             "ReleaseAllResources not used by Mid CBF. Use AddReceptors command"
         )
+
+    def is_RemoveAllReceptors_allowed(self: MidCbfSubarraySimulator) -> bool:
+        """
+        Return whether the `RemoveAllReceptors` command may be called in the current state.
+
+        :raises ValueError: command not permitted in observation state
+
+        :return: whether the command may be called in the current device
+            state
+        """
+        # If we return False here, Tango will raise an exception that incorrectly blames
+        # refusal on device state.
+        # e.g. "AssignResources not allowed when the device is in ON state".
+        # So let's raise an exception ourselves.
+        if self._obs_state != ObsState.IDLE or self.get_state() != DevState.ON:
+            raise ValueError(
+                "RemoveAllReceptors command not permitted in observation state "
+                f"{ObsState(self._obs_state).name} or state {self.get_state()}"
+            )
+        return True
 
     @command(dtype_out="DevVarLongStringArray")
     @DebugIt()

@@ -15,7 +15,7 @@ import functools
 import json
 
 from ska_control_model import ResultCode
-from tango import DebugIt, DevVarLongStringArray
+from tango import DebugIt, DevState, DevVarLongStringArray
 from tango.server import attribute, command, run
 
 from ska_csp_simulators.common.base_simulator_device import BaseSimulatorDevice
@@ -54,6 +54,15 @@ class MidCbfCtrlSimulator(BaseSimulatorDevice):
     # --------
     # Commands
     # --------
+
+    def is_InitSysParam_allowed(self: MidCbfCtrlSimulator) -> bool:
+        """
+        Return whether the `InitSysParam` command may be called in the current device state.
+
+        :return: whether the command may be called in the current device
+            state
+        """
+        return self.get_state() == DevState.OFF
 
     @command(
         dtype_in="DevString",

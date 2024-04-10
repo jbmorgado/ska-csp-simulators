@@ -516,6 +516,19 @@ class BaseSimulatorDevice(Device):
     # --------
     # Commands
     # --------
+    def is_On_allowed(self: BaseSimulatorDevice) -> bool:
+        """
+        Return whether the `On` command may be called in the current device state.
+
+        :return: whether the command may be called in the current device
+            state
+        """
+        return self.get_state() in [
+            DevState.OFF,
+            DevState.STANDBY,
+            DevState.ON,
+            DevState.UNKNOWN,
+        ]
 
     @command(dtype_out="DevVarLongStringArray")
     @DebugIt()
@@ -527,6 +540,21 @@ class BaseSimulatorDevice(Device):
         result_code, msg = self.do("on", _on_completed, argin=None)
         return ([result_code], [msg])
 
+    def is_Off_allowed(self: BaseSimulatorDevice) -> bool:
+        """
+        Return whether the `Off` command may be called in the current device state.
+
+        :return: whether the command may be called in the current device
+            state
+        """
+        return self.get_state() in [
+            DevState.OFF,
+            DevState.STANDBY,
+            DevState.ON,
+            DevState.UNKNOWN,
+            DevState.FAULT,
+        ]
+
     @command(dtype_out="DevVarLongStringArray")
     @DebugIt()
     def Off(self):
@@ -535,6 +563,19 @@ class BaseSimulatorDevice(Device):
 
         result_code, msg = self.do("off", _off_completed)
         return ([result_code], [msg])
+
+    def is_Reset_allowed(self: BaseSimulatorDevice) -> bool:
+        """
+        Return whether the `Reset` command may be called in the current device state.
+
+        :return: whether the command may be called in the current device
+            state
+        """
+        return self.get_state() in [
+            DevState.STANDBY,
+            DevState.ON,
+            DevState.FAULT,
+        ]
 
     @command(dtype_out="DevVarLongStringArray")
     @DebugIt()

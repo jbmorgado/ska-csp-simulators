@@ -160,3 +160,22 @@ def test_init_sys_param_with_invalid_json(ctrl_device):
     assert result_code[0] == ResultCode.FAILED
     assert not ctrl_device.sysParam
     assert not ctrl_device.sourceSysParam
+
+
+@pytest.mark.parametrize(
+    "device_init_state",
+    [
+        tango.DevState.ON,
+        tango.DevState.FAULT,
+        tango.DevState.STANDBY,
+        tango.DevState.UNKNOWN,
+    ],
+)
+def test_init_sys_param_not_allowed(
+    ctrl_device, device_init_state, change_event_callbacks
+):
+    ctrl_device.forcestate(device_init_state)
+    change_event_callbacks.assert_change_event("state", device_init_state)
+
+    with pytest.raises(tango.DevFailed):
+        ctrl_device.InitSysParam(" ")
