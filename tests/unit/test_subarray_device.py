@@ -132,8 +132,33 @@ def test_assign(
 def test_observing_command_not_allowed_when_off(
     subarray_device, command_name, input
 ):
-    """Test assign request on subarray"""
+    """Test commands are rejected when the device state is OFF"""
     assert subarray_device.state() == tango.DevState.OFF
+    with pytest.raises(tango.DevFailed):
+        if input:
+            subarray_device.command_inout(command_name, input)
+        else:
+            subarray_device.command_inout(command_name)
+
+
+@pytest.mark.parametrize(
+    "command_name,input",
+    [
+        ("AssignResources", """{"subarray_id":1}"""),
+        ("Configure", """{"subarray_id":1} """),
+        ("Scan", """{"subarray_id":1} """),
+        ("GoToIdle", ""),
+        ("EndScan", ""),
+        ("Abort", ""),
+    ],
+)
+def test_observing_command_raise_exception(
+    subarray_device, command_name, input, change_event_callbacks
+):
+    """Test commands raise exception when flag raiseException is set"""
+    subarray_device.forcestate(tango.DevState.ON)
+    change_event_callbacks.assert_change_event("state", tango.DevState.ON)
+    subarray_device.raiseException = True
     with pytest.raises(tango.DevFailed):
         if input:
             subarray_device.command_inout(command_name, input)

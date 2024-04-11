@@ -134,6 +134,7 @@ class MidCbfSubarraySimulator(SubarraySimulatorDevice):
             self._receptors = receptors_list
             self._assigned_resources = receptors_list
 
+        self.check_raise_exception()
         self.logger.info(f"Call assign with argument: {receptors_list}")
         self.update_obs_state(ObsState.RESOURCING)
         result_code, msg = self.do(
@@ -181,6 +182,7 @@ class MidCbfSubarraySimulator(SubarraySimulatorDevice):
             self.update_obs_state(ObsState.EMPTY)
             self._receptors = []
 
+        self.check_raise_exception()
         self.update_obs_state(ObsState.RESOURCING)
         result_code, msg = self.do(
             "releaseall", completed=_releaseall_completed, argin=None

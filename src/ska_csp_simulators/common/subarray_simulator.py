@@ -72,6 +72,7 @@ class SubarraySimulatorDevice(ObsSimulatorDevice):
         """
         Subarray assign resources
         """
+        self.check_raise_exception()
 
         def _assign_completed():
             self.logger.info("Command AssignResources completed on device}")
@@ -116,6 +117,7 @@ class SubarraySimulatorDevice(ObsSimulatorDevice):
             )
             self.update_obs_state(ObsState.EMPTY)
 
+        self.check_raise_exception()
         self.update_obs_state(ObsState.RESOURCING)
         result_code, msg = self.do(
             "releaseall", completed=_releaseall_completed, argin=None

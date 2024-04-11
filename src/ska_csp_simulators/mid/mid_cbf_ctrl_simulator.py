@@ -84,6 +84,7 @@ class MidCbfCtrlSimulator(BaseSimulatorDevice):
                 self.logger.error(e)
                 self._sys_param = ""
 
+        self.check_raise_exception()
         result_code = ResultCode.OK
         msg = "Dish-VCC map correctly programmed"
         try:

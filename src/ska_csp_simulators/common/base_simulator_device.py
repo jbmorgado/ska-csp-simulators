@@ -330,6 +330,10 @@ class BaseSimulatorDevice(Device):
         )
 
     def check_raise_exception(self):
+        """
+        Check whether the raiseException flag is set and in case
+        and raise a ValueError exception, clearing also the flag.
+        """
         if self._raise_exception:
             self._raise_exception = False
             self.logger.error("Raised exception!")
@@ -533,6 +537,8 @@ class BaseSimulatorDevice(Device):
     @command(dtype_out="DevVarLongStringArray")
     @DebugIt()
     def On(self):
+        self.check_raise_exception()
+
         def _on_completed():
             self.logger.info("Command On completed on device}")
             self.update_state(DevState.ON)
@@ -561,6 +567,7 @@ class BaseSimulatorDevice(Device):
         def _off_completed():
             self.update_state(DevState.OFF)
 
+        self.check_raise_exception()
         result_code, msg = self.do("off", _off_completed)
         return ([result_code], [msg])
 
@@ -584,6 +591,7 @@ class BaseSimulatorDevice(Device):
             self.logger.info("Command Reset completed on device}")
             self.update_state(DevState.OFF)
 
+        self.check_raise_exception()
         result_code, msg = self.do("reset", _reset_completed, argin=None)
         return ([result_code], [msg])
 
