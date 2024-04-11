@@ -29,6 +29,9 @@ __all__ = ["ObsSimulatorDevice", "main"]
 DevVarLongStringArrayType = tuple[list[ResultCode], list[str]]
 # pylint: disable=logging-fstring-interpolation
 
+# se scan time to 30 sec
+SCAN_TIME = 30
+
 
 class ObsSimulatorDevice(BaseSimulatorDevice):
     """
@@ -108,6 +111,7 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
                 time.sleep(0.1)
 
             _call_task_callback(status=TaskStatus.COMPLETED)
+            self.logger.info("Asynchronous task completed!")
 
         threading.Thread(target=simulate_async_task_execution).start()
 
@@ -215,11 +219,13 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
     @DebugIt()
     def Scan(self, argin):
         def _scan_completed():
+            self.logger.info("Scan completed on device}")
             if self._obs_faulty:
                 self.update_obs_state(ObsState.FAULT)
             if self._faulty_in_command:
                 self.update_obs_state(ObsState.READY)
 
+        self._time_to_complete = SCAN_TIME
         self.check_raise_exception()
         argin_dict = json.loads(argin)
         self.update_obs_state(ObsState.SCANNING)
@@ -341,6 +347,7 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
 
         self.update_obs_state(ObsState.ABORTING)
         command_id = self._command_tracker.new_command("abort")
+        self.logger.info("Invoking Abort")
         self._abort_event.set()
         result_code, _ = ResultCode.STARTED, "Abort invoked"
         threading.Thread(target=_abort).start()
