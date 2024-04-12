@@ -15,7 +15,7 @@ from __future__ import annotations
 import json
 
 from ska_control_model import ObsState, ResultCode
-from tango import DebugIt
+from tango import DebugIt, DevState
 from tango.server import command, run
 
 from ska_csp_simulators.common.obs_simulator import ObsSimulatorDevice
@@ -43,12 +43,36 @@ class SubarraySimulatorDevice(ObsSimulatorDevice):
 
         # self._dev_factory = DevFactory()
 
+    def is_AssignResources_allowed(self: SubarraySimulatorDevice) -> bool:
+        """
+        Return whether the `AssignResource` command may be called in the current state.
+
+        :raises ValueError: command not permitted in observation state
+
+        :return: whether the command may be called in the current device
+            state
+        """
+        # If we return False here, Tango will raise an exception that incorrectly blames
+        # refusal on device state.
+        # e.g. "AssignResources not allowed when the device is in ON state".
+        # So let's raise an exception ourselves.
+        if (
+            self._obs_state not in [ObsState.EMPTY, ObsState.IDLE]
+            or self.get_state() != DevState.ON
+        ):
+            raise ValueError(
+                "AssignResources command not permitted in observation state "
+                f"{self._obs_state} or state {self.get_state()}"
+            )
+        return True
+
     @command(dtype_in="DevString", dtype_out="DevVarLongStringArray")
     @DebugIt()
     def AssignResources(self, argin) -> DevVarLongStringArrayType:
         """
         Subarray assign resources
         """
+        self.check_raise_exception()
 
         def _assign_completed():
             self.logger.info("Command AssignResources completed on device}")
@@ -62,6 +86,26 @@ class SubarraySimulatorDevice(ObsSimulatorDevice):
         )
         return ([result_code], [msg])
 
+    def is_ReleaseAllResources_allowed(self: SubarraySimulatorDevice) -> bool:
+        """
+        Return whether the `ReleaseAllResource` command may be called in the current state.
+
+        :raises ValueError: command not permitted in observation state
+
+        :return: whether the command may be called in the current device
+            state
+        """
+        # If we return False here, Tango will raise an exception that incorrectly blames
+        # refusal on device state.
+        # e.g. "AssignResources not allowed when the device is in ON state".
+        # So let's raise an exception ourselves.
+        if self._obs_state != ObsState.IDLE or self.get_state() != DevState.ON:
+            raise ValueError(
+                "ReleaseAllResources command not permitted in observation state "
+                f"{self._obs_state} or state {self.get_state()}"
+            )
+        return True
+
     @command(dtype_out="DevVarLongStringArray")
     @DebugIt()
     def ReleaseAllResources(
@@ -73,6 +117,7 @@ class SubarraySimulatorDevice(ObsSimulatorDevice):
             )
             self.update_obs_state(ObsState.EMPTY)
 
+        self.check_raise_exception()
         self.update_obs_state(ObsState.RESOURCING)
         result_code, msg = self.do(
             "releaseall", completed=_releaseall_completed, argin=None

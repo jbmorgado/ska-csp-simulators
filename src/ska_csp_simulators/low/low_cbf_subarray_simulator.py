@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from ska_control_model import HealthState, ResultCode
+from ska_control_model import HealthState, ObsState, ResultCode
 from tango import DebugIt, DevState
 from tango.server import attribute, command, run
 
@@ -93,6 +93,25 @@ class LowCbfSubarraySimulator(SubarraySimulatorDevice):
             super().set_communication(
                 DevState.ON, HealthState.UNKNOWN, connecting
             )
+
+    def is_End_allowed(self: LowCbfSubarraySimulator) -> bool:
+        """
+        Return whether `GoToIdle` may be called in the current device state.
+
+        :raises ValueError: command not permitted in observation state
+
+        :return: whether the command may be called in the current device
+            state
+        """
+        if (
+            self._obs_state != ObsState.READY
+            or self.get_state() != DevState.ON
+        ):
+            raise ValueError(
+                "End command not permitted in observation state "
+                f"{ObsState(self._obs_state).name} or state {self.get_state()}"
+            )
+        return True
 
     @command(dtype_out="DevVarLongStringArray")
     @DebugIt()

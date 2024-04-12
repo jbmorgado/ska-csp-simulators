@@ -107,3 +107,29 @@ def test_end(subarray_device, change_event_callbacks):
         "longRunningCommandStatus", (command_id, "COMPLETED")
     )
     change_event_callbacks.assert_change_event("obsState", ObsState.IDLE)
+
+
+@pytest.mark.parametrize(
+    "device_init_obs_state",
+    [
+        ObsState.EMPTY,
+        ObsState.RESTARTING,
+        ObsState.CONFIGURING,
+        ObsState.ABORTED,
+        ObsState.FAULT,
+        ObsState.ABORTING,
+        ObsState.RESOURCING,
+        ObsState.SCANNING,
+    ],
+)
+def test_end_not_allowed_in_wrong_obs_state(
+    subarray_device, device_init_obs_state, change_event_callbacks
+):
+    """Test End not allowed when the device is in wrong status"""
+    if device_init_obs_state != ObsState.EMPTY:
+        subarray_device.forceobsstate(device_init_obs_state)
+        change_event_callbacks.assert_change_event(
+            "obsState", device_init_obs_state
+        )
+    with pytest.raises(tango.DevFailed):
+        subarray_device.End()

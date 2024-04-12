@@ -18,7 +18,7 @@ import time
 from typing import Any
 
 from ska_control_model import ObsMode, ObsState, ResultCode, TaskStatus
-from tango import DebugIt
+from tango import DebugIt, DevState
 from tango.server import attribute, command, run
 
 from ska_csp_simulators.common.base_simulator_device import BaseSimulatorDevice
@@ -28,6 +28,9 @@ __all__ = ["ObsSimulatorDevice", "main"]
 
 DevVarLongStringArrayType = tuple[list[ResultCode], list[str]]
 # pylint: disable=logging-fstring-interpolation
+
+# se scan time to 30 sec
+SCAN_TIME = 30
 
 
 class ObsSimulatorDevice(BaseSimulatorDevice):
@@ -65,10 +68,6 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
         if self._obs_state != value:
             self._obs_state = value
             self.push_change_event("obsState", value)
-
-    # def check_obs_faulty(self):
-    #     if self._obs_faulty:
-    #         self.ForceObsState(ObsState.FAULT)
 
     def _simulate_task_execution(
         self,
@@ -112,6 +111,7 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
                 time.sleep(0.1)
 
             _call_task_callback(status=TaskStatus.COMPLETED)
+            self.logger.info("Asynchronous task completed!")
 
         threading.Thread(target=simulate_async_task_execution).start()
 
@@ -144,9 +144,29 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
         Force the subarray observing state to the desired value
         """
         self.logger.info(
-            f"Force observing state from {self._obs_state} to {value}"
+            f"Force observing state from {ObsState(self._obs_state).name} "
+            f"to {ObsState(value).name}"
         )
         self.update_obs_state(value)
+
+    def is_Configure_allowed(self: ObsSimulatorDevice) -> bool:
+        """
+        Return whether `Configure` may be called in the current device state.
+
+        :raises ValueError: command not permitted in observation state
+
+        :return: whether the command may be called in the current device
+            state
+        """
+        if (
+            self._obs_state not in [ObsState.IDLE, ObsState.READY]
+            or self.get_state() != DevState.ON
+        ):
+            raise ValueError(
+                "Configure command not permitted in observation state "
+                f"{ObsState(self._obs_state).name} or state {self.get_state()}"
+            )
+        return True
 
     @command(dtype_in=str, dtype_out="DevVarLongStringArray")
     @DebugIt()
@@ -176,15 +196,36 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
         )
         return ([result_code], [msg])
 
+    def is_Scan_allowed(self: ObsSimulatorDevice) -> bool:
+        """
+        Return whether `Scan` may be called in the current device state.
+
+        :raises ValueError: command not permitted in observation state
+
+        :return: whether the command may be called in the current device
+            state
+        """
+        if (
+            self._obs_state != ObsState.READY
+            or self.get_state() != DevState.ON
+        ):
+            raise ValueError(
+                "Scan command not permitted in observation state "
+                f"{ObsState(self._obs_state).name} or state {self.get_state()}"
+            )
+        return True
+
     @command(dtype_in=str, dtype_out="DevVarLongStringArray")
     @DebugIt()
     def Scan(self, argin):
         def _scan_completed():
+            self.logger.info("Scan completed on device}")
             if self._obs_faulty:
                 self.update_obs_state(ObsState.FAULT)
             if self._faulty_in_command:
                 self.update_obs_state(ObsState.READY)
 
+        self._time_to_complete = SCAN_TIME
         self.check_raise_exception()
         argin_dict = json.loads(argin)
         self.update_obs_state(ObsState.SCANNING)
@@ -192,6 +233,25 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
             "scan", completed=_scan_completed, argin=argin_dict
         )
         return ([result_code], [msg])
+
+    def is_EndScan_allowed(self: ObsSimulatorDevice) -> bool:
+        """
+        Return whether `EndScan` may be called in the current device state.
+
+        :raises ValueError: command not permitted in observation state
+
+        :return: whether the command may be called in the current device
+            state
+        """
+        if (
+            self._obs_state != ObsState.SCANNING
+            or self.get_state() != DevState.ON
+        ):
+            raise ValueError(
+                "EndScan command not permitted in observation state "
+                f"{ObsState(self._obs_state).name} or state {self.get_state()}"
+            )
+        return True
 
     @command(dtype_out="DevVarLongStringArray")
     @DebugIt()
@@ -215,6 +275,25 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
         result_code, _ = ResultCode.STARTED, "EndScan invoked"
         return ([result_code], [command_id])
 
+    def is_GoToIdle_allowed(self: ObsSimulatorDevice) -> bool:
+        """
+        Return whether `GoToIdle` may be called in the current device state.
+
+        :raises ValueError: command not permitted in observation state
+
+        :return: whether the command may be called in the current device
+            state
+        """
+        if (
+            self._obs_state != ObsState.READY
+            or self.get_state() != DevState.ON
+        ):
+            raise ValueError(
+                "GoToIdle command not permitted in observation state "
+                f"{ObsState(self._obs_state).name} or state {self.get_state()}"
+            )
+        return True
+
     @command(dtype_out="DevVarLongStringArray")
     @DebugIt()
     def GoToIdle(self):
@@ -226,6 +305,33 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
 
         result_code, msg = self.do("end", completed=_end_completed)
         return ([result_code], [msg])
+
+    def is_Abort_allowed(self: ObsSimulatorDevice) -> bool:
+        """
+        Return whether `Abort` may be called in the current device state.
+
+        :raises ValueError: command not permitted in observation state
+
+        :return: whether the command may be called in the current device
+            state
+        """
+        if (
+            self._obs_state
+            not in [
+                ObsState.RESOURCING,
+                ObsState.IDLE,
+                ObsState.CONFIGURING,
+                ObsState.READY,
+                ObsState.SCANNING,
+                ObsState.RESETTING,
+            ]
+            or self.get_state() != DevState.ON
+        ):
+            raise ValueError(
+                "Abort command not permitted in observation state "
+                f"{ObsState(self._obs_state).name} or state {self.get_state()}"
+            )
+        return True
 
     @command(dtype_out="DevVarLongStringArray")
     @DebugIt()
@@ -241,10 +347,30 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
 
         self.update_obs_state(ObsState.ABORTING)
         command_id = self._command_tracker.new_command("abort")
+        self.logger.info("Invoking Abort")
         self._abort_event.set()
         result_code, _ = ResultCode.STARTED, "Abort invoked"
         threading.Thread(target=_abort).start()
         return ([result_code], [command_id])
+
+    def is_Restart_allowed(self: ObsSimulatorDevice) -> bool:
+        """
+        Return whether the `Restart` command may be called in the current device state.
+
+        :raises ValueError: command not permitted in observation state
+
+        :return: whether the command may be called in the current device
+            state
+        """
+        if (
+            self._obs_state not in [ObsState.FAULT, ObsState.ABORTED]
+            or self.get_state() != DevState.ON
+        ):
+            raise ValueError(
+                "Restart command not permitted in observation state "
+                f"{ObsState(self._obs_state).name} or state {self.get_state()}"
+            )
+        return True
 
     @command(dtype_out="DevVarLongStringArray")
     @DebugIt()

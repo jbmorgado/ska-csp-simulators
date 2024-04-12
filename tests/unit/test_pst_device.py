@@ -89,6 +89,8 @@ def test_pst_beam_configure(pst_device, change_event_callbacks):
     channel_config = f.read().replace("\n", "")
     pst_device.forcestate(tango.DevState.ON)
     change_event_callbacks.assert_change_event("state", tango.DevState.ON)
+    pst_device.forceobsstate(ObsState.READY)
+    change_event_callbacks.assert_change_event("obsState", ObsState.READY)
     [[result_code], [command_id]] = pst_device.Configure('{"subarray_id":1}')
     assert result_code == ResultCode.QUEUED
     change_event_callbacks.assert_change_event(
@@ -105,3 +107,37 @@ def test_pst_beam_configure(pst_device, change_event_callbacks):
     assert json.loads(pst_device.channelBlockConfiguration) == json.loads(
         channel_config
     )
+
+
+def test_beam_configure_not_allowed_in_wrong_state(pst_device):
+    """Test beaam configure not allowed in wrong state"""
+    assert pst_device.state() == tango.DevState.OFF
+    with pytest.raises(tango.DevFailed):
+        pst_device.ConfigureScan('{"subarray_id":1}')
+
+
+@pytest.mark.parametrize(
+    "device_init_obs_state",
+    [
+        ObsState.EMPTY,
+        ObsState.RESTARTING,
+        ObsState.CONFIGURING,
+        ObsState.ABORTED,
+        ObsState.FAULT,
+        ObsState.ABORTING,
+        ObsState.RESOURCING,
+        ObsState.SCANNING,
+    ],
+)
+def test_beam_configure_not_allowed_in_wrong_obs_state(
+    pst_device, device_init_obs_state, change_event_callbacks
+):
+    """Test beaam configure not allowed in wrong observing state"""
+    pst_device.forcestate(tango.DevState.ON)
+    change_event_callbacks.assert_change_event("state", tango.DevState.ON)
+    pst_device.forceobsstate(device_init_obs_state)
+    change_event_callbacks.assert_change_event(
+        "obsState", device_init_obs_state
+    )
+    with pytest.raises(tango.DevFailed):
+        pst_device.ConfigureScan('{"subarray_id":1}')

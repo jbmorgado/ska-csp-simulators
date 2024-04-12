@@ -101,6 +101,34 @@ def test_mid_assign(subarray_device, change_event_callbacks):
     assert subarray_device.assignedresources == ("SKA001", "SKA036")
 
 
+@pytest.mark.parametrize(
+    "device_init_obs_state",
+    [
+        ObsState.READY,
+        ObsState.RESTARTING,
+        ObsState.CONFIGURING,
+        ObsState.ABORTED,
+        ObsState.FAULT,
+        ObsState.ABORTING,
+        ObsState.RESOURCING,
+        ObsState.SCANNING,
+    ],
+)
+def test_addreceptors_not_allowed_in_wrong_obs_state(
+    subarray_device, device_init_obs_state, change_event_callbacks
+):
+    """Test AddReceptors not allowed in wrong observing state"""
+    subarray_device.forcestate(tango.DevState.ON)
+    change_event_callbacks.assert_change_event("state", tango.DevState.ON)
+    subarray_device.forceobsstate(device_init_obs_state)
+    change_event_callbacks.assert_change_event(
+        "obsState", device_init_obs_state
+    )
+
+    with pytest.raises(tango.DevFailed):
+        subarray_device.AddReceptors(["SKA001"])
+
+
 def test_mid_releaseall(subarray_device, change_event_callbacks):
     """Test assign request on subarray"""
     subarray_device.forcestate(tango.DevState.ON)
