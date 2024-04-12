@@ -7,6 +7,8 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 Latest pre-release
 ------------------
+0.2.0
+-----
 Implementation of the is_XXX_allowed methods for the commands.
 
 0.1.0
