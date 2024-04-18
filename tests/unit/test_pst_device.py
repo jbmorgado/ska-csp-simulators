@@ -132,7 +132,7 @@ def test_beam_configure_not_allowed_in_wrong_state(pst_device):
 def test_beam_configure_not_allowed_in_wrong_obs_state(
     pst_device, device_init_obs_state, change_event_callbacks
 ):
-    """Test beaam configure not allowed in wrong observing state"""
+    """Test beam configure not allowed in wrong observing state"""
     pst_device.forcestate(tango.DevState.ON)
     change_event_callbacks.assert_change_event("state", tango.DevState.ON)
     pst_device.forceobsstate(device_init_obs_state)

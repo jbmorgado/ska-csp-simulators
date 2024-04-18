@@ -46,10 +46,8 @@ class LowCbfCtrlSimulator(BaseSimulatorDevice):
         Override the behavior of the method to set different
         values fot the State and healthState of the device.
         """
-        if connecting:
-            super().set_communication(
-                DevState.ON, HealthState.UNKNOWN, connecting
-            )
+
+        super().set_communication(DevState.ON, HealthState.UNKNOWN, connecting)
 
     # ----------
     # Attributes

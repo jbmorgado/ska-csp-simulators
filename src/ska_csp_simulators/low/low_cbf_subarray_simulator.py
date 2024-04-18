@@ -89,10 +89,8 @@ class LowCbfSubarraySimulator(SubarraySimulatorDevice):
         end_health: HealthState,
         connecting: bool,
     ):
-        if connecting:
-            super().set_communication(
-                DevState.ON, HealthState.UNKNOWN, connecting
-            )
+
+        super().set_communication(DevState.ON, HealthState.UNKNOWN, connecting)
 
     def is_End_allowed(self: LowCbfSubarraySimulator) -> bool:
         """
