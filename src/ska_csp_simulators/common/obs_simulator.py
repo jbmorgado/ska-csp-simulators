@@ -224,6 +224,10 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
                 self.update_obs_state(ObsState.FAULT)
             if self._faulty_in_command:
                 self.update_obs_state(ObsState.READY)
+            self._time_to_complete = 0.4
+            self.logger.info(
+                "Reset timeToComplete to {self._time_to_complete} sec"
+            )
 
         self._time_to_complete = SCAN_TIME
         self.check_raise_exception()
