@@ -8,7 +8,7 @@ import logging
 
 import pytest
 import tango
-from ska_control_model import AdminMode, HealthState, ObsState
+from ska_control_model import AdminMode, HealthState, ObsState, ResultCode
 
 from ska_csp_simulators.DevFactory import DevFactory
 from ska_csp_simulators.low.low_pss_subarray_simulator import (
@@ -79,3 +79,32 @@ def test_subarray_device_is_alive(subarray_device):
         subarray_device.ping()
     except tango.ConnectionFailed:
         pytest.fail("Could not contact the base device")
+
+
+def test_pss_subarray_configure(subarray_device, change_event_callbacks):
+    """Test configure request on PSS Subarray"""
+    subarray_device.forcestate(tango.DevState.ON)
+    change_event_callbacks.assert_change_event("state", tango.DevState.ON)
+    subarray_device.forceobsstate(ObsState.READY)
+    change_event_callbacks.assert_change_event("obsState", ObsState.READY)
+    [[result_code], [command_id]] = subarray_device.Configure(
+        '{"subarray_id":1}'
+    )
+    assert result_code == ResultCode.QUEUED
+    change_event_callbacks.assert_change_event(
+        "obsState", ObsState.CONFIGURING
+    )
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "IN_PROGRESS")
+    )
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "COMPLETED")
+    )
+    change_event_callbacks.assert_change_event("obsState", ObsState.READY)
+
+
+def test_pss_subarray_configure_not_allowed_in_wrong_state(subarray_device):
+    """Test PSS Subarray configure not allowed in wrong state"""
+    assert subarray_device.state() == tango.DevState.OFF
+    with pytest.raises(tango.DevFailed):
+        subarray_device.ConfigureScan('{"subarray_id":1}')

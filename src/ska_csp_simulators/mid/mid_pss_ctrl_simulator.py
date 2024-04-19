@@ -29,7 +29,7 @@ class MidPssCtrlSimulator(BaseSimulatorDevice):
     """
 
     def init_device(self):
-        """Initialises the attributes and properties of the Motor."""
+        """Initialises the attributes and properties of the device."""
         super().init_device()
         self._health_state = HealthState.OK
         self.set_state(DevState.OFF)
@@ -53,7 +53,7 @@ class MidPssCtrlSimulator(BaseSimulatorDevice):
 
 
 def main(args=None, **kwargs):
-    """Main function of the Motor module."""
+    """Main function of the device module."""
     return run((MidPssCtrlSimulator,), args=args, **kwargs)
 
 

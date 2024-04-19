@@ -42,7 +42,7 @@ class LowPssCtrlSimulator(BaseSimulatorDevice):
 
 
 def main(args=None, **kwargs):
-    """Main function of the Motor module."""
+    """Main function of the device module."""
     return run((LowPssCtrlSimulator,), args=args, **kwargs)
 
 

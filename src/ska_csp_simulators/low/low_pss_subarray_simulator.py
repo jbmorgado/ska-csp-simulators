@@ -11,7 +11,9 @@
 """
 from __future__ import annotations
 
-from tango.server import run
+from ska_control_model import ObsState
+from tango import DebugIt, DevState
+from tango.server import command, run
 
 from ska_csp_simulators.common.subarray_simulator import (
     SubarraySimulatorDevice,
@@ -33,6 +35,33 @@ class LowPssSubarraySimulator(SubarraySimulatorDevice):
     # Attributes
     # ----------
 
+    def is_ConfigureScan_allowed(self: LowPssSubarraySimulator) -> bool:
+        """
+        Return whether `ConfigureScan` may be called in the current device state.
+
+        :raises ValueError: command not permitted in observation state
+
+        :return: whether the command may be called in the current device
+            state
+        """
+        if (
+            self._obs_state not in [ObsState.IDLE, ObsState.READY]
+            or self.get_state() != DevState.ON
+        ):
+            raise ValueError(
+                "ConfigureScan command not permitted in observation state "
+                f"{ObsState(self._obs_state).name} or state {self.get_state()}"
+            )
+        return True
+
+    @command(dtype_in=str, dtype_out="DevVarLongStringArray")
+    @DebugIt()
+    def ConfigureScan(self: LowPssSubarraySimulator, argin):
+        """
+        Subarray configure resources
+        """
+        return self.Configure(argin)
+
 
 # ----------
 # Run server
@@ -40,7 +69,7 @@ class LowPssSubarraySimulator(SubarraySimulatorDevice):
 
 
 def main(args=None, **kwargs):
-    """Main function of the Motor module."""
+    """Main function of the device module."""
     return run((LowPssSubarraySimulator,), args=args, **kwargs)
 
 

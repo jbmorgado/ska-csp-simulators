@@ -88,11 +88,45 @@ def test_subarray_device_is_alive(subarray_device):
         pytest.fail("Could not contact the base device")
 
 
+def test_subarray_on(subarray_device, change_event_callbacks):
+    """Test subarray on."""
+    assert subarray_device.state() == tango.DevState.ON
+    [[result_code], [command_id]] = subarray_device.On()
+    assert result_code == ResultCode.QUEUED
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandResult", (command_id, "5")
+    )
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "COMPLETED")
+    )
+    assert subarray_device.state() == tango.DevState.ON
+
+
+def test_subarray_off(subarray_device, change_event_callbacks):
+    """Test subarray off."""
+    assert subarray_device.state() == tango.DevState.ON
+    [[result_code], [command_id]] = subarray_device.Off()
+    assert result_code == ResultCode.QUEUED
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandResult", (command_id, "5")
+    )
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "COMPLETED")
+    )
+    assert subarray_device.state() == tango.DevState.ON
+
+
+def test_subarray_standby(subarray_device):
+    """Test subarray standby."""
+    assert subarray_device.state() == tango.DevState.ON
+    result_code = subarray_device.Standby()
+    assert result_code[0] == ResultCode.REJECTED
+    assert subarray_device.state() == tango.DevState.ON
+
+
 def test_end(subarray_device, change_event_callbacks):
     """Test scan request on subarray"""
-    # subarray_device.forcestate(tango.DevState.ON)
-    # change_event_callbacks.assert_change_event("state", tango.DevState.ON)
-
+    assert subarray_device.state() == tango.DevState.ON
     subarray_device.forceobsstate(ObsState.READY)
     change_event_callbacks.assert_change_event("obsState", ObsState.READY)
     time.sleep(2)

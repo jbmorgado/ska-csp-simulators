@@ -53,9 +53,9 @@ itango:
 
 simul:
   image:
-    registry: artefact.skao.int
+    registry: harbor.skao.int/staging
     image: ska-csp-simulators
-    tag: 0.2.0
+    tag: 0.3.0
     pullPolicy: IfNotPresent
 
 volume:
@@ -94,6 +94,9 @@ deviceServers:
     midpsssubarray:
       enabled: true
       file: "data/beginner/midpsssubarray.yaml"
+    midpstbeam:
+      enabled: true
+      file: "data/beginner/midpstbeam.yaml"
     lowcbfctrl:
       enabled: true
       file: "data/beginner/lowcbfctrl.yaml"

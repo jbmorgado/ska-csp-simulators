@@ -1,0 +1,21 @@
+instances: ["beam1", "beam2", "beam3"]
+entrypoints:
+  - path: "/app/src/ska_csp_simulators/common/pst_beam_simulator.py"
+    name: "PstBeamSimulatorDevice"
+server:
+  instances:
+    - name: "beam1"
+      classes:
+      - name: "PstBeamSimulatorDevice"
+        devices:
+        - name: "sim-mid-pst/beam/01"
+    - name: "beam2"
+      classes:
+      - name: "PstBeamSimulatorDevice"
+        devices:
+        - name: "sim-mid-pst/beam/02"
+    - name: "beam3"
+      classes:
+      - name: "PstBeamSimulatorDevice"
+        devices:
+        - name: "sim-mid-pst/beam/03"

@@ -40,6 +40,8 @@ ska-csp-simulators:
         enabled: false
       midpsssubarray:
         enabled: false
+      midpstbeam:
+        enabled: false
       lowcbfctrl:
         enabled: true
       lowcbfsubarray:

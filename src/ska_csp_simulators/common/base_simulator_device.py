@@ -58,7 +58,7 @@ class BaseSimulatorDevice(Device):
     PROGRESS_REPORTING_POINTS = ["33", "66"]
 
     def init_device(self):
-        """Initialises the attributes and properties of the Motor."""
+        """Initialises the attributes and properties of the device."""
         super().init_device()
         # logging.basicConfig(level=logging.INFO)
         file_handler = logging.FileHandler(filename="tmp.log")
@@ -108,7 +108,6 @@ class BaseSimulatorDevice(Device):
         self.logger.info("Device ready!")
 
         # self._dev_factory = DevFactory()
-        # PROTECTED REGION END #    //  Motor.init_device
 
     def always_executed_hook(self):
         """Method always executed before any TANGO command is executed."""
@@ -612,7 +611,7 @@ class BaseSimulatorDevice(Device):
 
 
 def main(args=None, **kwargs):
-    """Main function of the Motor module."""
+    """Main function of the device module."""
     return run((BaseSimulatorDevice,), args=args, **kwargs)
 
 
