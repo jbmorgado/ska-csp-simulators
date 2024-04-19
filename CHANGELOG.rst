@@ -7,6 +7,9 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 Latest pre-release
 ------------------
+
+0.3.0
+-----
 Fix some wrong behaviors of the simulators.
 Modified Restart command in PST Beam to set the end observing
 state to IDLE (not EMPTY)
