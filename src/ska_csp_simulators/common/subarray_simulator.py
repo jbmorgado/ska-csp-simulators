@@ -37,7 +37,7 @@ class SubarraySimulatorDevice(ObsSimulatorDevice):
     # ---------------
 
     def init_device(self):
-        """Initialises the attributes and properties of the Motor."""
+        """Initialises the attributes and properties of the device."""
         super().init_device()
         self._obs_state = ObsState.EMPTY
 
@@ -131,7 +131,7 @@ class SubarraySimulatorDevice(ObsSimulatorDevice):
 
 
 def main(args=None, **kwargs):
-    """Main function of the Motor module."""
+    """Main function of the device module."""
     return run((SubarraySimulatorDevice,), args=args, **kwargs)
 
 

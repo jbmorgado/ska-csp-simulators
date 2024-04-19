@@ -13,8 +13,10 @@
 from __future__ import annotations
 
 import json
+import threading
+import time
 
-from ska_control_model import ObsState, ResultCode
+from ska_control_model import ObsState, ResultCode, TaskStatus
 from tango import DebugIt, DevState
 from tango.server import attribute, command, run
 
@@ -33,7 +35,7 @@ class PstBeamSimulatorDevice(ObsSimulatorDevice):
     """
 
     def init_device(self):
-        """Initialises the attributes and properties of the Motor."""
+        """Initialises the attributes and properties of the device."""
         super().init_device()
         self._channel_block_configuration = {}
         self.set_change_event("channelBlockConfiguration", True)
@@ -129,6 +131,28 @@ class PstBeamSimulatorDevice(ObsSimulatorDevice):
         result_code, msg = self.do("end", completed=_end_completed)
         return ([result_code], [msg])
 
+    @command(dtype_out="DevVarLongStringArray")
+    @DebugIt()
+    def Restart(self):
+        def _restart():
+            self.logger.info("Call _restart")
+            self._command_tracker.update_command_info(
+                command_id, status=TaskStatus.IN_PROGRESS
+            )
+            time.sleep(self._time_to_complete)
+            self._command_tracker.update_command_info(
+                command_id, status=TaskStatus.COMPLETED
+            )
+            self._abort_event.clear()
+            self._obs_faulty = False
+            self.update_obs_state(ObsState.IDLE)
+
+        self.check_raise_exception()
+        self.update_obs_state(ObsState.RESTARTING)
+        command_id = self._command_tracker.new_command("restart")
+        threading.Thread(target=_restart).start()
+        return ([ResultCode.QUEUED], [command_id])
+
 
 # ----------
 # Run server
@@ -136,7 +160,7 @@ class PstBeamSimulatorDevice(ObsSimulatorDevice):
 
 
 def main(args=None, **kwargs):
-    """Main function of the Motor module."""
+    """Main function of the device module."""
     return run((ObsSimulatorDevice,), args=args, **kwargs)
 
 

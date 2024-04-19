@@ -35,7 +35,7 @@ class MidCbfCtrlSimulator(BaseSimulatorDevice):
     # General methods
     # ---------------
     def init_device(self):
-        """Initialises the attributes and properties of the Motor."""
+        """Initialises the attributes and properties of the device."""
         super().init_device()
         self._sys_param = ""
         self._source_sys_param = ""
@@ -113,7 +113,7 @@ class MidCbfCtrlSimulator(BaseSimulatorDevice):
 
 
 def main(args=None, **kwargs):
-    """Main function of the Motor module."""
+    """Main function of the device module."""
     return run((MidCbfCtrlSimulator,), args=args, **kwargs)
 
 

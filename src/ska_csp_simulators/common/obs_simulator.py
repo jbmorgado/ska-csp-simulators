@@ -43,7 +43,7 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
     # ---------------
 
     def init_device(self):
-        """Initialises the attributes and properties of the Motor."""
+        """Initialises the attributes and properties of the device."""
         super().init_device()
         self._obs_mode = ObsMode.IDLE
         self._obs_state = ObsState.IDLE
@@ -58,7 +58,6 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
         self.logger.info("Device ready!")
 
         # self._dev_factory = DevFactory()
-        # PROTECTED REGION END #    //  Motor.init_device
 
     def always_executed_hook(self):
         """Method always executed before any TANGO command is executed."""
@@ -226,7 +225,7 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
                 self.update_obs_state(ObsState.READY)
             self._time_to_complete = 0.4
             self.logger.info(
-                "Reset timeToComplete to {self._time_to_complete} sec"
+                f"Reset timeToComplete to {self._time_to_complete} sec"
             )
 
         self._time_to_complete = SCAN_TIME
@@ -404,7 +403,7 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
 
 
 def main(args=None, **kwargs):
-    """Main function of the Motor module."""
+    """Main function of the device module."""
     return run((ObsSimulatorDevice,), args=args, **kwargs)
 
 

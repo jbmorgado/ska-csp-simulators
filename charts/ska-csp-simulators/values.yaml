@@ -94,6 +94,9 @@ deviceServers:
     midpsssubarray:
       enabled: true
       file: "data/beginner/midpsssubarray.yaml"
+    midpstbeam:
+      enabled: true
+      file: "data/beginner/midpstbeam.yaml"
     lowcbfctrl:
       enabled: true
       file: "data/beginner/lowcbfctrl.yaml"

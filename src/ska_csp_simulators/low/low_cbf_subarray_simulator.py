@@ -11,10 +11,11 @@
 """
 from __future__ import annotations
 
+import threading
 from collections import defaultdict
 
-from ska_control_model import HealthState, ObsState, ResultCode
-from tango import DebugIt, DevState
+from ska_control_model import HealthState, ObsState, ResultCode, TaskStatus
+from tango import DebugIt, DevState, DevVarLongStringArray
 from tango.server import attribute, command, run
 
 from ska_csp_simulators.common.subarray_simulator import (
@@ -30,7 +31,7 @@ DevVarLongStringArrayType = tuple[list[ResultCode], list[str]]
 
 class LowCbfSubarraySimulator(SubarraySimulatorDevice):
     """
-    Base simulator device
+    Low CBF Subarray simulator device
     """
 
     # ---------------
@@ -38,7 +39,7 @@ class LowCbfSubarraySimulator(SubarraySimulatorDevice):
     # ---------------
 
     def init_device(self):
-        """Initialises the attributes and properties of the Motor."""
+        """Initialises the attributes and properties of the device."""
         super().init_device()
         self._health_state = HealthState.UNKNOWN
         self._stations = defaultdict(set)
@@ -92,6 +93,70 @@ class LowCbfSubarraySimulator(SubarraySimulatorDevice):
 
         super().set_communication(DevState.ON, HealthState.UNKNOWN, connecting)
 
+    @command(
+        dtype_out="DevVarLongStringArray",
+    )
+    @DebugIt()
+    def On(self: LowCbfSubarraySimulator) -> DevVarLongStringArray:
+        """
+        Command On on Low CBF subarray is not executed.
+        In real device the command is queued but does nothing and at
+        completion it updates the result code to REJECTED and the task
+        status to COMPLETED. The simulator mimics this behavior.
+        """
+
+        self.check_raise_exception()
+
+        def _on_completed():
+            message = "Ignored 'on', subarray always ON"
+            self.logger.warning(message)
+            self._command_tracker.update_command_info(
+                command_id,
+                status=TaskStatus.COMPLETED,
+                result=ResultCode.REJECTED,
+            )
+
+        command_id = self._command_tracker.new_command("on")
+        threading.Thread(target=_on_completed).start()
+        result_code, _ = ResultCode.QUEUED, "On invoked"
+        return ([result_code], [command_id])
+
+    @command(
+        dtype_out="DevVarLongStringArray",
+    )
+    @DebugIt()
+    def Off(self: LowCbfSubarraySimulator) -> DevVarLongStringArray:
+        """
+        Command Off on Low CBF subarray is not executed.
+        In real device the command is queued but does nothing and at
+        completion it updates the result code to REJECTED and the task
+        status to COMPLETED. The simulator mimics this behavior.
+        """
+        self.check_raise_exception()
+
+        def _off_completed():
+            message = "Ignored 'off', subarray always ON"
+            self.logger.warning(message)
+            self._command_tracker.update_command_info(
+                command_id,
+                status=TaskStatus.COMPLETED,
+                result=ResultCode.REJECTED,
+            )
+
+        command_id = self._command_tracker.new_command("off")
+        threading.Thread(target=_off_completed).start()
+        result_code, _ = ResultCode.QUEUED, "Off invoked"
+        return ([result_code], [command_id])
+
+    @command(
+        dtype_out="DevVarLongStringArray",
+    )
+    @DebugIt()
+    def Standby(self: LowCbfSubarraySimulator) -> DevVarLongStringArray:
+        message = "Ignored STANDBY, controller does not have hardware"
+        self.logger.error(message)
+        return [[ResultCode.REJECTED], [message]]
+
     def is_End_allowed(self: LowCbfSubarraySimulator) -> bool:
         """
         Return whether `GoToIdle` may be called in the current device state.
@@ -126,7 +191,7 @@ class LowCbfSubarraySimulator(SubarraySimulatorDevice):
 
 
 def main(args=None, **kwargs):
-    """Main function of the Motor module."""
+    """Main function of the device module."""
     return run((LowCbfSubarraySimulator,), args=args, **kwargs)
 
 

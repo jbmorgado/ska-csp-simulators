@@ -72,7 +72,7 @@ class MidPssSubarraySimulator(SubarraySimulatorDevice):
 
 
 def main(args=None, **kwargs):
-    """Main function of the Motor module."""
+    """Main function of the device module."""
     return run((MidPssSubarraySimulator,), args=args, **kwargs)
 
 

@@ -38,13 +38,13 @@ class MidCbfSubarraySimulator(SubarraySimulatorDevice):
     # ---------------
 
     def init_device(self):
-        """Initialises the attributes and properties of the Motor."""
+        """Initialises the attributes and properties of the device."""
         super().init_device()
         self._receptors = []
         self._assigned_resources = []
 
         # self._dev_factory = DevFactory()
-        # PROTECTED REGION END #   //  Motor.init_device
+        # PROTECTED REGION END #   //  device.init_device
 
     # ----------
     # Attributes
@@ -196,7 +196,7 @@ class MidCbfSubarraySimulator(SubarraySimulatorDevice):
 
 
 def main(args=None, **kwargs):
-    """Main function of the Motor module."""
+    """Main function of the device module."""
     return run((MidCbfSubarraySimulator,), args=args, **kwargs)
 
 
