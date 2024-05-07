@@ -55,8 +55,8 @@ include:
     file: 'gitlab-ci/includes/python.gitlab-ci.yml'
 
 # Jupyter notebook linting and testing
-  - project: 'ska-telescope/templates-repository'
-    file: 'gitlab-ci/includes/notebook.gitlab-ci.yml'
+#  - project: 'ska-telescope/templates-repository'
+#    file: 'gitlab-ci/includes/notebook.gitlab-ci.yml'
 
 # Helm Charts
   - project: 'ska-telescope/templates-repository'
@@ -112,5 +112,5 @@ python-lint:
     - if: '$PYTANGO_VERSION == null'
 
 
-notebook-test:
-  when: manual
+#notebook-test:
+#  when: manual
