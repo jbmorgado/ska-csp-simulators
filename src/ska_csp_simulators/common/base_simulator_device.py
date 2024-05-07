@@ -103,7 +103,7 @@ class BaseSimulatorDevice(Device):
             "longRunningCommandProgress",
             "longRunningCommandResult",
         ]:
-            self.set_change_event(attribute_name, True)
+            self.set_change_event(attribute_name, True, False)
         self.update_state(DevState.DISABLE)
         self.logger.info("Device ready!")
 

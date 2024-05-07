@@ -5,7 +5,13 @@ Change Log
 All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
-Latest pre-release
+0.3.1
+------------------
+Set events to always pushing
+Remove lint and test jobs for notebooks (not used in the project)
+Update dependencies
+
+0.3.0
 ------------------
 Fix some wrong behaviors of the simulators.
 Modified Restart command in PST Beam to set the end observing
