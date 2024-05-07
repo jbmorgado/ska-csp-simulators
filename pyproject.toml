@@ -28,10 +28,6 @@ pytango = "^9.5.0"
 ska-k8s-config-exporter = "^0.0.4"
 ska-tango-testing = "0.6.0"
 ska-tango-base = "^0.20.1"
-notebook = "^7.0.6"
-jupyterlab = "^4.0.8"
-jupyterhub = "^4.0.2"
-jupyter-server = "^2.10.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.3.0"
