@@ -16,6 +16,10 @@ MidCbfSubarraySimulator = 'ska_csp_simulators.mid.mid_cbf_subarray_simulator:mai
 name = 'ska-nexus'
 url = 'https://artefact.skao.int/repository/pypi-internal/simple'
 
+[[tool.poetry.source]]
+name = "PyPI-public"
+url = 'https://pypi.org/simple'
+
 [tool.poetry.dependencies]
 python = ">=3.10,<=3.12"
 debugpy = "^1.5.1"
