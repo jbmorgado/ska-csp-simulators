@@ -2180,17 +2180,18 @@ reference = "PyPI-public"
 
 [[package]]
 name = "ska-control-model"
-version = "0.3.4"
+version = "1.0.0"
 description = "The SKA control model"
 category = "main"
 optional = false
 python-versions = ">=3.10,<4.0"
 files = [
-    {file = "ska_control_model-0.3.4-py3-none-any.whl", hash = "sha256:61513b3ae3e9c41178daba2c83127054376f5ccb267f66ad2141ce4961944139"},
-    {file = "ska_control_model-0.3.4.tar.gz", hash = "sha256:d5e2e5a4d54cc46ca1259a1259614d4f56bcb8507c0fb674b4d5e8da8d001603"},
+    {file = "ska_control_model-1.0.0-py3-none-any.whl", hash = "sha256:b5573317eb1b18308634d6d88c187310877222bef397a025ad47d01ff2f57d7f"},
+    {file = "ska_control_model-1.0.0.tar.gz", hash = "sha256:8434af88da664d5a74ed4f93e96f498bfa9a70325d1caa39dad5578d9f53c4cf"},
 ]
 
 [package.dependencies]
+pytango = ">=9.4.2,<10.0.0"
 transitions = ">=0.9.0,<0.10.0"
 
 [package.source]
@@ -2260,14 +2261,14 @@ reference = 'ska-nexus'
 
 [[package]]
 name = "ska-tango-base"
-version = "0.20.2"
+version = "1.0.0"
 description = "SKA Tango base classes"
 category = "main"
 optional = false
 python-versions = ">=3.10,<4.0"
 files = [
-    {file = "ska_tango_base-0.20.2-py3-none-any.whl", hash = "sha256:8405c404fdb615d319d2cd62388dca8b10f765f654ac56b31aa2cb3368840357"},
-    {file = "ska_tango_base-0.20.2.tar.gz", hash = "sha256:3be731232f218aae0c976a00dfc4eaec0f15c1ba9adf946f57e8e841a1c30ff0"},
+    {file = "ska_tango_base-1.0.0-py3-none-any.whl", hash = "sha256:edb86c02f7de36b8b8b8ea379e986de7885e48feb2b6aa4210233ff163f4ae0c"},
+    {file = "ska_tango_base-1.0.0.tar.gz", hash = "sha256:20636bb3b3966caa37c53a972ac4031c3d6cf7eebb0bce4e99064f90a76fb5a5"},
 ]
 
 [package.dependencies]
@@ -2278,9 +2279,9 @@ numpy = [
     {version = ">=1.23.2", markers = "python_version == \"3.11\""},
     {version = ">=1.26.0", markers = "python_version >= \"3.12\""},
 ]
-pytango = ">=9.3.3,<10.0.0"
-ska-control-model = ">=0.3.4,<0.4.0"
-ska-ser-logging = ">=0.4.1,<0.5.0"
+pytango = ">=9.4.2,<10.0.0"
+ska-control-model = ">=1.0.0,<2.0.0"
+ska-ser-logging = ">=0.4.3,<0.5.0"
 transitions = ">=0.9.0,<0.10.0"
 
 [package.source]
@@ -3074,4 +3075,4 @@ reference = "PyPI-public"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<=3.12"
-content-hash = "8e1eceea57935c0d3c6e12b4e7353064026f0c388e7bcab060e32dda3c320f45"
+content-hash = "512b69c390f8f494b11b663867abf4289ac96491473b36e8bf550ec4d71345a9"
