@@ -58,7 +58,6 @@ def subarray_device_online(subarray_device, change_event_callbacks):
             tango.EventType.CHANGE_EVENT,
             change_event_callbacks[attribute],
         )
-
     change_event_callbacks.assert_change_event("state", tango.DevState.DISABLE)
     change_event_callbacks.assert_change_event("adminMode", AdminMode.OFFLINE)
     change_event_callbacks.assert_change_event("healthState", HealthState.OK)
@@ -346,7 +345,6 @@ def test_abort_configure(subarray_device, change_event_callbacks):
         (command_id, "ABORTED", abort_id, "IN_PROGRESS"),
     )
     change_event_callbacks.assert_change_event("obsState", ObsState.ABORTED)
-
     change_event_callbacks.assert_change_event(
         "longRunningCommandStatus",
         (command_id, "ABORTED", abort_id, "COMPLETED"),
@@ -535,6 +533,7 @@ def test_obsfaulty_while_scanning(subarray_device, change_event_callbacks):
     assert subarray_device.timeToComplete == 5
     [[result_code], [command_id]] = subarray_device.Scan('{"subarray_id":1}')
     assert result_code == ResultCode.QUEUED
+
     change_event_callbacks.assert_change_event("obsState", ObsState.SCANNING)
     change_event_callbacks.assert_change_event(
         "longRunningCommandStatus", (command_id, "STAGING")
