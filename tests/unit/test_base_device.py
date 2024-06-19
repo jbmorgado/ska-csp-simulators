@@ -127,6 +127,9 @@ def test_turn_on(base_device, change_event_callbacks, device_init_state):
     [[result_code], [command_id]] = base_device.On()
     assert result_code == ResultCode.QUEUED
     change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "STAGING")
+    )
+    change_event_callbacks.assert_change_event(
         "longRunningCommandStatus", (command_id, "IN_PROGRESS")
     )
     change_event_callbacks.assert_change_event(
@@ -162,6 +165,9 @@ def test_turn_off(base_device, change_event_callbacks, device_init_state):
         change_event_callbacks.assert_change_event("state", device_init_state)
     [[result_code], [command_id]] = base_device.Off()
     assert result_code == ResultCode.QUEUED
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "STAGING")
+    )
     change_event_callbacks.assert_change_event(
         "longRunningCommandStatus", (command_id, "IN_PROGRESS")
     )

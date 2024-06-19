@@ -58,6 +58,7 @@ def subarray_device_online(subarray_device, change_event_callbacks):
             tango.EventType.CHANGE_EVENT,
             change_event_callbacks[attribute],
         )
+
     change_event_callbacks.assert_change_event("state", tango.DevState.DISABLE)
     change_event_callbacks.assert_change_event("adminMode", AdminMode.OFFLINE)
     change_event_callbacks.assert_change_event("healthState", HealthState.OK)
@@ -109,6 +110,9 @@ def test_assign(
     )
     assert result_code == ResultCode.QUEUED
     change_event_callbacks.assert_change_event("obsState", ObsState.RESOURCING)
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "STAGING")
+    )
     change_event_callbacks.assert_change_event(
         "longRunningCommandStatus", (command_id, "IN_PROGRESS")
     )
@@ -244,6 +248,9 @@ def test_configure(
         "obsState", ObsState.CONFIGURING
     )
     change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "STAGING")
+    )
+    change_event_callbacks.assert_change_event(
         "longRunningCommandStatus", (command_id, "IN_PROGRESS")
     )
     change_event_callbacks.assert_change_event(
@@ -288,6 +295,9 @@ def test_gotoidle(subarray_device, change_event_callbacks):
 
     assert result_code == ResultCode.QUEUED
     change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "STAGING")
+    )
+    change_event_callbacks.assert_change_event(
         "longRunningCommandStatus", (command_id, "IN_PROGRESS")
     )
     change_event_callbacks.assert_change_event(
@@ -315,11 +325,18 @@ def test_abort_configure(subarray_device, change_event_callbacks):
         "obsState", ObsState.CONFIGURING
     )
     change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "STAGING")
+    )
+    change_event_callbacks.assert_change_event(
         "longRunningCommandStatus", (command_id, "IN_PROGRESS")
     )
     [[result_code], [abort_id]] = subarray_device.abort()
     change_event_callbacks.assert_change_event("obsState", ObsState.ABORTING)
     assert result_code == ResultCode.STARTED
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus",
+        (command_id, "IN_PROGRESS", abort_id, "STAGING"),
+    )
     change_event_callbacks.assert_change_event(
         "longRunningCommandStatus",
         (command_id, "IN_PROGRESS", abort_id, "IN_PROGRESS"),
@@ -329,6 +346,7 @@ def test_abort_configure(subarray_device, change_event_callbacks):
         (command_id, "ABORTED", abort_id, "IN_PROGRESS"),
     )
     change_event_callbacks.assert_change_event("obsState", ObsState.ABORTED)
+
     change_event_callbacks.assert_change_event(
         "longRunningCommandStatus",
         (command_id, "ABORTED", abort_id, "COMPLETED"),
@@ -360,6 +378,10 @@ def test_abort_allowed(
     [[result_code], [command_id]] = subarray_device.Abort()
     change_event_callbacks.assert_change_event("obsState", ObsState.ABORTING)
     assert result_code == ResultCode.STARTED
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus",
+        (command_id, "STAGING"),
+    )
     change_event_callbacks.assert_change_event(
         "longRunningCommandStatus",
         (command_id, "IN_PROGRESS"),
@@ -406,11 +428,18 @@ def test_scan(subarray_device, change_event_callbacks):
     assert result_code == ResultCode.QUEUED
     change_event_callbacks.assert_change_event("obsState", ObsState.SCANNING)
     change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "STAGING")
+    )
+    change_event_callbacks.assert_change_event(
         "longRunningCommandStatus", (command_id, "IN_PROGRESS")
     )
     # wait a while before sending EndScan
     time.sleep(0.2)
     [[result_code], [endscan_id]] = subarray_device.EndScan()
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus",
+        (command_id, "IN_PROGRESS", endscan_id, "STAGING"),
+    )
     change_event_callbacks.assert_change_event(
         "longRunningCommandStatus",
         (command_id, "IN_PROGRESS", endscan_id, "IN_PROGRESS"),
@@ -474,6 +503,9 @@ def test_obsfaulty_while_configuring(subarray_device, change_event_callbacks):
         "obsState", ObsState.CONFIGURING
     )
     change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "STAGING")
+    )
+    change_event_callbacks.assert_change_event(
         "longRunningCommandStatus", (command_id, "IN_PROGRESS")
     )
 
@@ -503,8 +535,10 @@ def test_obsfaulty_while_scanning(subarray_device, change_event_callbacks):
     assert subarray_device.timeToComplete == 5
     [[result_code], [command_id]] = subarray_device.Scan('{"subarray_id":1}')
     assert result_code == ResultCode.QUEUED
-
     change_event_callbacks.assert_change_event("obsState", ObsState.SCANNING)
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "STAGING")
+    )
     change_event_callbacks.assert_change_event(
         "longRunningCommandStatus", (command_id, "IN_PROGRESS")
     )
@@ -524,6 +558,10 @@ def test_obsfaulty_while_scanning(subarray_device, change_event_callbacks):
     [[result_code], [restart_id]] = subarray_device.Restart()
     assert result_code == ResultCode.QUEUED
     change_event_callbacks.assert_change_event("obsState", ObsState.RESTARTING)
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus",
+        (command_id, "COMPLETED", restart_id, "STAGING"),
+    )
     change_event_callbacks.assert_change_event(
         "longRunningCommandStatus",
         (command_id, "COMPLETED", restart_id, "IN_PROGRESS"),
@@ -553,6 +591,9 @@ def test_faulty_while_configuring(subarray_device, change_event_callbacks):
 
     change_event_callbacks.assert_change_event(
         "obsState", ObsState.CONFIGURING
+    )
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "STAGING")
     )
     change_event_callbacks.assert_change_event(
         "longRunningCommandStatus", (command_id, "IN_PROGRESS")
@@ -592,6 +633,10 @@ def test_restart_allowed(
     [[result_code], [command_id]] = subarray_device.Restart()
     change_event_callbacks.assert_change_event("obsState", ObsState.RESTARTING)
     assert result_code == ResultCode.QUEUED
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus",
+        (command_id, "STAGING"),
+    )
     change_event_callbacks.assert_change_event(
         "longRunningCommandStatus",
         (command_id, "IN_PROGRESS"),

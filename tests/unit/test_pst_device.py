@@ -97,6 +97,9 @@ def test_pst_beam_configure(pst_device, change_event_callbacks):
         "obsState", ObsState.CONFIGURING
     )
     change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "STAGING")
+    )
+    change_event_callbacks.assert_change_event(
         "longRunningCommandStatus", (command_id, "IN_PROGRESS")
     )
     change_event_callbacks.assert_change_event(
@@ -125,6 +128,9 @@ def test_pst_beam_restart(pst_device, init_obs_state, change_event_callbacks):
     [[result_code], [command_id]] = pst_device.Restart()
     assert result_code == ResultCode.QUEUED
     change_event_callbacks.assert_change_event("obsState", ObsState.RESTARTING)
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "STAGING")
+    )
     change_event_callbacks.assert_change_event(
         "longRunningCommandStatus", (command_id, "IN_PROGRESS")
     )
