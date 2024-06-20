@@ -55,7 +55,7 @@ simul:
   image:
     registry: harbor.skao.int/staging
     image: ska-csp-simulators
-    tag: 0.3.0
+    tag: 0.3.1
     pullPolicy: IfNotPresent
 
 volume:
