@@ -11,6 +11,7 @@ Latest pre-release
 - update charts
     - ska-tango-util v 0.4.11
     - ska-tango-base v 0.4.10
+- update simulators to use version 0.3.1
 
 0.3.1
 ------------------
