@@ -86,6 +86,9 @@ def test_init_sys_param_with_uri(ctrl_device, change_event_callbacks):
     [[result_code], [command_id]] = ctrl_device.InitSysParam(vcc_map_url)
     assert result_code == ResultCode.QUEUED
     change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "STAGING")
+    )
+    change_event_callbacks.assert_change_event(
         "longRunningCommandStatus", (command_id, "IN_PROGRESS")
     )
     change_event_callbacks.assert_change_event(
@@ -116,6 +119,9 @@ def test_init_sys_param_wrong_file_path(ctrl_device, change_event_callbacks):
 
     [[result_code], [command_id]] = ctrl_device.InitSysParam(vcc_map_uri)
     assert result_code == ResultCode.QUEUED
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "STAGING")
+    )
     change_event_callbacks.assert_change_event(
         "longRunningCommandStatus", (command_id, "IN_PROGRESS")
     )

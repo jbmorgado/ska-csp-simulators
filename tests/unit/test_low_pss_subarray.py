@@ -95,6 +95,9 @@ def test_pss_subarray_configure(subarray_device, change_event_callbacks):
         "obsState", ObsState.CONFIGURING
     )
     change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "STAGING")
+    )
+    change_event_callbacks.assert_change_event(
         "longRunningCommandStatus", (command_id, "IN_PROGRESS")
     )
     change_event_callbacks.assert_change_event(

@@ -297,6 +297,7 @@ class BaseSimulatorDevice(Device):
         self,
         command_progresses: list[tuple[str, int]],
     ) -> None:
+
         self._command_progresses = [
             str(item)
             for item in itertools.chain.from_iterable(command_progresses)
@@ -311,6 +312,7 @@ class BaseSimulatorDevice(Device):
         command_result: tuple[ResultCode, str],
     ) -> None:
         self._command_result = (command_id, json.dumps(command_result))
+
         self.push_change_event(
             "longRunningCommandResult", self._command_result
         )

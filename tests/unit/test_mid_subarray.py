@@ -91,6 +91,9 @@ def test_mid_assign(subarray_device, change_event_callbacks):
     assert result_code == ResultCode.QUEUED
     change_event_callbacks.assert_change_event("obsState", ObsState.RESOURCING)
     change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "STAGING")
+    )
+    change_event_callbacks.assert_change_event(
         "longRunningCommandStatus", (command_id, "IN_PROGRESS")
     )
     change_event_callbacks.assert_change_event(
@@ -141,6 +144,9 @@ def test_mid_releaseall(subarray_device, change_event_callbacks):
     assert result_code == ResultCode.QUEUED
     change_event_callbacks.assert_change_event("obsState", ObsState.RESOURCING)
     change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "STAGING")
+    )
+    change_event_callbacks.assert_change_event(
         "longRunningCommandStatus", (command_id, "IN_PROGRESS")
     )
     change_event_callbacks.assert_change_event(
@@ -162,6 +168,9 @@ def test_mid_configure(subarray_device, change_event_callbacks):
     assert result_code == ResultCode.QUEUED
     change_event_callbacks.assert_change_event(
         "obsState", ObsState.CONFIGURING
+    )
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "STAGING")
     )
     change_event_callbacks.assert_change_event(
         "longRunningCommandStatus", (command_id, "IN_PROGRESS")

@@ -94,6 +94,9 @@ def test_subarray_on(subarray_device, change_event_callbacks):
     [[result_code], [command_id]] = subarray_device.On()
     assert result_code == ResultCode.QUEUED
     change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "STAGING")
+    )
+    change_event_callbacks.assert_change_event(
         "longRunningCommandResult", (command_id, "5")
     )
     change_event_callbacks.assert_change_event(
@@ -107,6 +110,9 @@ def test_subarray_off(subarray_device, change_event_callbacks):
     assert subarray_device.state() == tango.DevState.ON
     [[result_code], [command_id]] = subarray_device.Off()
     assert result_code == ResultCode.QUEUED
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "STAGING")
+    )
     change_event_callbacks.assert_change_event(
         "longRunningCommandResult", (command_id, "5")
     )
@@ -133,7 +139,9 @@ def test_end(subarray_device, change_event_callbacks):
     assert subarray_device.obsState == ObsState.READY
     [[result_code], [command_id]] = subarray_device.End()
     assert result_code == ResultCode.QUEUED
-
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "STAGING")
+    )
     change_event_callbacks.assert_change_event(
         "longRunningCommandStatus", (command_id, "IN_PROGRESS")
     )

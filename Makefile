@@ -90,7 +90,8 @@ ITANGO_ENABLED ?= true## ITango enabled in ska-tango-base
 
 COUNT ?= 1
 
-PYTHON_VARS_AFTER_PYTEST = -m 'not post_deployment' --forked --disable-pytest-warnings --count=$(COUNT)
+MARK_UN ?= unit
+PYTHON_VARS_AFTER_PYTEST = -k $(MARK_UN) -m 'not post_deployment' --forked --disable-pytest-warnings --count=$(COUNT)
 
 ifeq ($(strip $(firstword $(MAKECMDGOALS))),k8s-test)
 # need to set the PYTHONPATH since the ska-cicd-makefile default definition 
