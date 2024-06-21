@@ -7,6 +7,9 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 Latest pre-release
 ------------------
+
+0.4.0
+------------------
 - Update ska-tango-base to 1.0.0 (to use new ska-control-model package)
 - update charts
     - ska-tango-util v 0.4.11
