@@ -8,7 +8,13 @@ import logging
 
 import pytest
 import tango
-from ska_control_model import AdminMode, HealthState, ObsState, ResultCode
+from ska_control_model import (
+    AdminMode,
+    HealthState,
+    ObsMode,
+    ObsState,
+    ResultCode,
+)
 
 from ska_csp_simulators.DevFactory import DevFactory
 from ska_csp_simulators.mid.mid_cbf_subarray_simulator import (
@@ -48,6 +54,7 @@ def subarray_device_online(subarray_device, change_event_callbacks):
         "adminMode",
         "healthState",
         "obsState",
+        "obsMode",
         "longRunningCommandProgress",
         "longRunningCommandStatus",
         "longRunningCommandResult",
@@ -61,6 +68,7 @@ def subarray_device_online(subarray_device, change_event_callbacks):
     change_event_callbacks.assert_change_event("adminMode", AdminMode.OFFLINE)
     change_event_callbacks.assert_change_event("healthState", HealthState.OK)
     change_event_callbacks.assert_change_event("obsState", ObsState.EMPTY)
+    change_event_callbacks.assert_change_event("obsMode", ObsMode.IDLE)
     change_event_callbacks.assert_change_event(
         "longRunningCommandProgress", ()
     )
