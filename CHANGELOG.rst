@@ -8,6 +8,11 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Latest pre-release
 ------------------
 
+0.5.0
+------------------
+- Add obsMode atrribute to obs devices and a method to override the value
+- Add observationMode attribute to PstBeam and a method to override the value
+
 0.4.0
 ------------------
 - Update ska-tango-base to 1.0.0 (to use new ska-control-model package)
