@@ -100,6 +100,8 @@ def change_event_callbacks() -> MockTangoEventCallbackGroup:
     return MockTangoEventCallbackGroup(
         "adminMode",
         "obsState",
+        "obsMode",
+        "observationMode",
         "state",
         "healthState",
         "channelBlockConfiguration",

@@ -54,7 +54,7 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
             "obsState",
             "obsMode",
         ]:
-            self.set_change_event(attribute_name, True)
+            self.set_change_event(attribute_name, True, False)
         self.logger.info("Device ready!")
 
         # self._dev_factory = DevFactory()
@@ -67,6 +67,11 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
         if self._obs_state != value:
             self._obs_state = value
             self.push_change_event("obsState", value)
+
+    def update_obs_mode(self: ObsSimulatorDevice, value: ObsMode):
+        if self._obs_mode != value:
+            self._obs_mode = value
+            self.push_change_event("obsMode", value)
 
     def _simulate_task_execution(
         self,
@@ -147,6 +152,18 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
             f"to {ObsState(value).name}"
         )
         self.update_obs_state(value)
+
+    @command(dtype_in=ObsMode)
+    @DebugIt()
+    def ForceObsMode(self: ObsSimulatorDevice, value: ObsMode) -> None:
+        """
+        Force the subarray observing mode to the desired value
+        """
+        self.logger.info(
+            f"Force observing state from {ObsMode(self._obs_mode).name} "
+            f"to {ObsMode(value).name}"
+        )
+        self.update_obs_mode(value)
 
     def is_Configure_allowed(self: ObsSimulatorDevice) -> bool:
         """

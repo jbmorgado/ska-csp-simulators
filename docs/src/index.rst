@@ -38,6 +38,8 @@ subsystems of the CSP
 - ForceState
 - ForceHealthState
 - ForceObsState
+- ForceObsMode
+- ForceObservationMode
 
 .. list-table::
    :widths: 15 35 10 5 35
@@ -83,6 +85,16 @@ subsystems of the CSP
    * - *ForceObsState*
      - Set the observing state to the specified value and push a change event.
      - The desired observing state value
+     -
+
+   * - *ForceObsMode*
+     - Set the observing mode to the specified value and push a change event.
+     - The desired observing mode value
+     -
+
+   * - *ForceObservationMode*
+     - Set the observing mode of the PST beam to the specified value and push a change event.
+     - The desired observing mode value
      -
 
 The simulators
@@ -162,6 +174,13 @@ Force a device in a different observing state::
 
   cbf_sub1.ForceObsState(ObsState.FAULT)
 
+Force a device in a different observing mode::
+
+  cbf_sub1.ForceObsMode(ObsMode.VLBI)
+
+Force a PST beam in a different PST observing mode::
+
+  cbf_sub1.ForceObservationMode(ObsMode.FLOW_THROUGH)
 
 Force an exception at command esecution::
 

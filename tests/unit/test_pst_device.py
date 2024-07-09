@@ -10,9 +10,18 @@ import time
 
 import pytest
 import tango
-from ska_control_model import AdminMode, HealthState, ObsState, ResultCode
+from ska_control_model import (
+    AdminMode,
+    HealthState,
+    ObsMode,
+    ObsState,
+    ResultCode,
+)
 
-from ska_csp_simulators.common.pst_beam_simulator import PstBeamSimulatorDevice
+from ska_csp_simulators.common.pst_beam_simulator import (
+    PstBeamSimulatorDevice,
+    PstObservationMode,
+)
 from ska_csp_simulators.DevFactory import DevFactory
 
 module_logger = logging.getLogger(__name__)
@@ -48,6 +57,8 @@ def pst_device_online(pst_device, change_event_callbacks):
         "adminMode",
         "healthState",
         "obsState",
+        "obsMode",
+        "observationMode",
         "channelBlockConfiguration",
         "longRunningCommandProgress",
         "longRunningCommandStatus",
@@ -62,6 +73,10 @@ def pst_device_online(pst_device, change_event_callbacks):
     change_event_callbacks.assert_change_event("adminMode", AdminMode.OFFLINE)
     change_event_callbacks.assert_change_event("healthState", HealthState.OK)
     change_event_callbacks.assert_change_event("obsState", ObsState.IDLE)
+    change_event_callbacks.assert_change_event("obsMode", ObsMode.IDLE)
+    change_event_callbacks.assert_change_event(
+        "observationMode", PstObservationMode.PULSAR_TIMING
+    )
     change_event_callbacks.assert_change_event(
         "channelBlockConfiguration", "{}"
     )
