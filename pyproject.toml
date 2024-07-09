@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ska-csp-simulators"
-version = "0.4.0"
+version = "0.5.0"
 description = "SKA CSP Simulators"
 authors = ["Elisabetta Giani <elisabetta.giani@inaf.it>"]
 license = "BSD-3-Clause"
