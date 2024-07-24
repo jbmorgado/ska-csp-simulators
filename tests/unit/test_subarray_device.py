@@ -357,14 +357,12 @@ def test_abort_configure(subarray_device, change_event_callbacks):
         ObsState.RESOURCING,
         ObsState.CONFIGURING,
         ObsState.SCANNING,
-        ObsState.READY,
-        ObsState.IDLE,
     ],
 )
 def test_abort_allowed(
     subarray_device, device_init_obs_state, change_event_callbacks
 ):
-    """Test Abort is allowed when is in the proper status"""
+    """Test Abort is allowed when is in the proper transitional status"""
 
     subarray_device.forcestate(tango.DevState.ON)
     change_event_callbacks.assert_change_event("state", tango.DevState.ON)
@@ -388,6 +386,35 @@ def test_abort_allowed(
         "longRunningCommandStatus",
         (command_id, "COMPLETED"),
     )
+
+
+@pytest.mark.parametrize(
+    "device_init_obs_state",
+    [
+        ObsState.READY,
+        ObsState.IDLE,
+    ],
+)
+def test_abort_allowed_2(
+    subarray_device, device_init_obs_state, change_event_callbacks
+):
+    """Test Abort is allowed when is in READY or IDLE"""
+
+    subarray_device.forcestate(tango.DevState.ON)
+    change_event_callbacks.assert_change_event("state", tango.DevState.ON)
+    subarray_device.forceobsstate(device_init_obs_state)
+    change_event_callbacks.assert_change_event(
+        "obsState", device_init_obs_state
+    )
+    assert subarray_device.obsstate == device_init_obs_state
+    [[result_code], [command_id]] = subarray_device.Abort()
+    change_event_callbacks.assert_change_event("obsState", ObsState.ABORTING)
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus",
+        (command_id, "STAGING"),
+    )
+    change_event_callbacks.assert_change_event("obsState", ObsState.ABORTED)
+    assert result_code == ResultCode.OK
 
 
 @pytest.mark.parametrize(

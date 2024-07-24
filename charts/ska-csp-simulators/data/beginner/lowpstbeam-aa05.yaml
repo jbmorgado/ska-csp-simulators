@@ -8,13 +8,3 @@ server:
       - name: "PstBeamSimulatorDevice"
         devices:
         - name: "sim-low-pst/beam/01"
-    - name: "beam2"
-      classes:
-      - name: "PstBeamSimulatorDevice"
-        devices:
-        - name: "sim-low-pst/beam/02"
-    - name: "beam3"
-      classes:
-      - name: "PstBeamSimulatorDevice"
-        devices:
-        - name: "sim-low-pst/beam/03"

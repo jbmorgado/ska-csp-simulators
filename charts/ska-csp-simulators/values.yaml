@@ -111,6 +111,7 @@ deviceServers:
       file: "data/beginner/lowpsssubarray.yaml"
     lowpstbeam:
       enabled: true
+      instances: ["beam1", "beam2", "beam3"]
       file: "data/beginner/lowpstbeam.yaml"
 
 nodeSelector: {}

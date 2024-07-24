@@ -326,6 +326,47 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
         result_code, msg = self.do("end", completed=_end_completed)
         return ([result_code], [msg])
 
+    def is_ObsReset_allowed(self: ObsSimulatorDevice) -> bool:
+        """
+        Return whether the `ObsReset` command may be called in the current device state.
+
+        :raises ValueError: command not permitted in observation state
+
+        :return: whether the command may be called in the current device
+            state
+        """
+        if (
+            self._obs_state not in [ObsState.FAULT, ObsState.ABORTED]
+            or self.get_state() != DevState.ON
+        ):
+            raise ValueError(
+                "ObsREset command not permitted in observation state "
+                f"{ObsState(self._obs_state).name} or state {self.get_state()}"
+            )
+        return True
+
+    @command(dtype_out="DevVarLongStringArray")
+    @DebugIt()
+    def ObsReset(self: ObsSimulatorDevice):
+        def _obsreset():
+            self.logger.info("Call _obsreset")
+            self._command_tracker.update_command_info(
+                command_id, status=TaskStatus.IN_PROGRESS
+            )
+            time.sleep(self._time_to_complete)
+            self._command_tracker.update_command_info(
+                command_id, status=TaskStatus.COMPLETED
+            )
+            self._abort_event.clear()
+            self._obs_faulty = False
+            self.update_obs_state(ObsState.IDLE)
+
+        self.check_raise_exception()
+        self.update_obs_state(ObsState.RESETTING)
+        command_id = self._command_tracker.new_command("obsreset")
+        threading.Thread(target=_obsreset).start()
+        return ([ResultCode.QUEUED], [command_id])
+
     def is_Abort_allowed(self: ObsSimulatorDevice) -> bool:
         """
         Return whether `Abort` may be called in the current device state.
@@ -365,53 +406,21 @@ class ObsSimulatorDevice(BaseSimulatorDevice):
                 command_id, status=TaskStatus.COMPLETED
             )
 
+        obs_state_ori = self._obs_state
+
         self.update_obs_state(ObsState.ABORTING)
         command_id = self._command_tracker.new_command("abort")
         self.logger.info("Invoking Abort")
-        self._abort_event.set()
+
         result_code, _ = ResultCode.STARTED, "Abort invoked"
-        threading.Thread(target=_abort).start()
-        return ([result_code], [command_id])
-
-    def is_Restart_allowed(self: ObsSimulatorDevice) -> bool:
-        """
-        Return whether the `Restart` command may be called in the current device state.
-
-        :raises ValueError: command not permitted in observation state
-
-        :return: whether the command may be called in the current device
-            state
-        """
-        if (
-            self._obs_state not in [ObsState.FAULT, ObsState.ABORTED]
-            or self.get_state() != DevState.ON
-        ):
-            raise ValueError(
-                "Restart command not permitted in observation state "
-                f"{ObsState(self._obs_state).name} or state {self.get_state()}"
-            )
-        return True
-
-    @command(dtype_out="DevVarLongStringArray")
-    @DebugIt()
-    def Restart(self):
-        def _restart():
-            self.logger.info("Call _restart")
-            self._command_tracker.update_command_info(
-                command_id, status=TaskStatus.IN_PROGRESS
-            )
-            time.sleep(0.2)
-            self._command_tracker.update_command_info(
-                command_id, status=TaskStatus.COMPLETED
-            )
-            self._abort_event.clear()
+        if obs_state_ori in [ObsState.IDLE, ObsState.READY]:
+            self.update_obs_state(ObsState.ABORTED)
             self._obs_faulty = False
-            self.update_obs_state(ObsState.EMPTY)
-
-        self.update_obs_state(ObsState.RESTARTING)
-        command_id = self._command_tracker.new_command("restart")
-        threading.Thread(target=_restart).start()
-        return ([ResultCode.QUEUED], [command_id])
+            result_code = ResultCode.OK
+        else:
+            self._abort_event.set()
+            threading.Thread(target=_abort).start()
+        return ([result_code], [command_id])
 
 
 # ----------

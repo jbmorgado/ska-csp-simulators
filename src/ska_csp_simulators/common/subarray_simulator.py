@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import json
 
-from ska_control_model import ObsState, ResultCode
+from ska_control_model import ObsState, ResultCode, TaskStatus
 from tango import DebugIt, DevState
 from tango.server import command, run
 
@@ -123,6 +123,49 @@ class SubarraySimulatorDevice(ObsSimulatorDevice):
             "releaseall", completed=_releaseall_completed, argin=None
         )
         return ([result_code], [msg])
+
+    def is_Restart_allowed(self: SubarraySimulatorDevice) -> bool:
+        """
+        Return whether the `Restart` command may be called in the current device state.
+
+        :raises ValueError: command not permitted in observation state
+
+        :return: whether the command may be called in the current device
+            state
+        """
+        if (
+            self._obs_state not in [ObsState.FAULT, ObsState.ABORTED]
+            or self.get_state() != DevState.ON
+        ):
+            raise ValueError(
+                "Restart command not permitted in observation state "
+                f"{ObsState(self._obs_state).name} or state {self.get_state()}"
+            )
+        return True
+
+    @command(dtype_out="DevVarLongStringArray")
+    @DebugIt()
+    def Restart(self: SubarraySimulatorDevice):
+        import threading
+        import time
+
+        def _restart():
+            self.logger.info("Call _restart")
+            self._command_tracker.update_command_info(
+                command_id, status=TaskStatus.IN_PROGRESS
+            )
+            time.sleep(0.2)
+            self._command_tracker.update_command_info(
+                command_id, status=TaskStatus.COMPLETED
+            )
+            self._abort_event.clear()
+            self._obs_faulty = False
+            self.update_obs_state(ObsState.EMPTY)
+
+        self.update_obs_state(ObsState.RESTARTING)
+        command_id = self._command_tracker.new_command("restart")
+        threading.Thread(target=_restart).start()
+        return ([ResultCode.QUEUED], [command_id])
 
 
 # ----------

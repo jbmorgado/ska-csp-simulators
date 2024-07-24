@@ -333,7 +333,7 @@ class BaseSimulatorDevice(Device):
     def check_raise_exception(self):
         """
         Check whether the raiseException flag is set and in case
-        and raise a ValueError exception, clearing also the flag.
+        raise a ValueError exception, clearing also the flag.
         """
         if self._raise_exception:
             self._raise_exception = False

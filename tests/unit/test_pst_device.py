@@ -135,14 +135,14 @@ def test_pst_beam_configure(pst_device, change_event_callbacks):
     ],
 )
 def test_pst_beam_restart(pst_device, init_obs_state, change_event_callbacks):
-    """Test restart request on PST Beam"""
+    """Test obsreset request on PST Beam"""
     pst_device.forcestate(tango.DevState.ON)
     change_event_callbacks.assert_change_event("state", tango.DevState.ON)
     pst_device.forceobsstate(init_obs_state)
     change_event_callbacks.assert_change_event("obsState", init_obs_state)
-    [[result_code], [command_id]] = pst_device.Restart()
+    [[result_code], [command_id]] = pst_device.ObsReset()
     assert result_code == ResultCode.QUEUED
-    change_event_callbacks.assert_change_event("obsState", ObsState.RESTARTING)
+    change_event_callbacks.assert_change_event("obsState", ObsState.RESETTING)
     change_event_callbacks.assert_change_event(
         "longRunningCommandStatus", (command_id, "STAGING")
     )
