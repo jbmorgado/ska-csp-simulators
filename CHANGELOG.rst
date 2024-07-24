@@ -7,6 +7,9 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 Latest pre-release
 ------------------
+
+0.6.0
+-----
 - Added ObsReset command in the ObsDevice and moved the Restart command to the SubarrayDevice.
 - fix bug in Abort command when invoked from the observing state IDLE or READY
 - Updated Helm chart configuration for AA05 to deploy only 1 PST beam.

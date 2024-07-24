@@ -2,8 +2,8 @@ apiVersion: v2
 name: ska-csp-simulators-test-parent
 description: A Helm parent chart for the CSP Simulators
 type: application
-version: 0.5.0
-appVersion: 0.5.0
+version: 0.6.0
+appVersion: 0.6.0
 icon: https://www.skatelescope.org/wp-content/uploads/2016/07/09545_NEW_LOGO_2014.png
 dependencies:
 - name: ska-tango-util
@@ -13,7 +13,7 @@ dependencies:
   version: 0.4.10
   repository: https://artefact.skao.int/repository/helm-internal
 - name: ska-csp-simulators
-  version: 0.5.0
+  version: 0.6.0
   repository: file://../ska-csp-simulators
 - name: ska-taranta
   version: 1.0.29
