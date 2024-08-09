@@ -14,6 +14,8 @@ from __future__ import annotations
 
 import enum
 import json
+import threading
+import time
 
 from ska_control_model import ObsState, ResultCode
 from tango import DebugIt, DevState
