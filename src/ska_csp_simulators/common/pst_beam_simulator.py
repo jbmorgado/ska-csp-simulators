@@ -20,6 +20,7 @@ from tango import DebugIt, DevState
 from tango.server import attribute, command, run
 
 from ska_csp_simulators.common.obs_simulator import ObsSimulatorDevice
+from ska_csp_simulators.utilities.data_generator import generate_random_number
 
 __all__ = ["PstBeamSimulatorDevice", "main"]
 
@@ -52,8 +53,18 @@ class PstBeamSimulatorDevice(ObsSimulatorDevice):
         super().init_device()
         self._channel_block_configuration = {}
         self._observation_mode = PstObservationMode.PULSAR_TIMING
+        self._data_receive_rate = 0
+        self._data_received = 0
+        self._update_thread = threading.Thread(
+            target=self._update_random_attributes
+        )
+        self._update_thread.daemon = True
+        self._update_thread.start()
+
         self.set_change_event("channelBlockConfiguration", True, False)
         self.set_change_event("observationMode", True, False)
+        self.set_change_event("dataReceived", True, False)
+        self.set_change_event("dataReceiveRate", True, False)
 
     # ---------------
     # General methods
@@ -70,6 +81,20 @@ class PstBeamSimulatorDevice(ObsSimulatorDevice):
         if self._observation_mode != value:
             self._observation_mode = value
             self.push_change_event("observationMode", value)
+
+    def _update_random_attributes(self: PstBeamSimulatorDevice):
+        while True:
+            self._data_receive_rate = generate_random_number(
+                data_type=float, range_start=0, range_end=200
+            )
+            self.logger.error(
+                f"Update dataReceivedRate to {self._data_receive_rate} "
+            )
+            self._data_received = generate_random_number(
+                data_type=int, range_start=0, range_end=10000
+            )
+            self.logger.error(f"Update dataReceived to {self._data_received}")
+            time.sleep(1)
 
     # ----------
     # Attributes
@@ -95,6 +120,40 @@ class PstBeamSimulatorDevice(ObsSimulatorDevice):
     # --------
     # Commands
     # --------
+
+    @attribute(
+        dtype=int,
+        unit="Bytes",
+        standard_unit="Bytes",
+        display_unit="B",
+        doc="Total number of bytes received from the CBF in the current scan",
+    )
+    def dataReceived(self: PstBeamSimulatorDevice) -> int:
+        """
+        Get the total amount of data received from CBF interface for current scan.
+
+        :returns: total amount of data received from CBF interface for current scan in Bytes
+        :rtype: int
+        """
+        return self._data_received
+
+    @attribute(
+        dtype=float,
+        unit="Gigabits per second",
+        standard_unit="Gigabits per second",
+        display_unit="Gb/s",
+        max_value=200,
+        min_value=0,
+        doc="Current data receive rate from the CBF interface",
+    )
+    def dataReceiveRate(self: PstBeamSimulatorDevice) -> float:
+        """
+        Get the current data receive rate from the CBF interface.
+
+        :returns: current data receive rate from the CBF interface in Gb/s.
+        :rtype: float
+        """
+        return self._data_receive_rate
 
     @command(dtype_in=PstObservationMode)
     @DebugIt()
@@ -185,7 +244,7 @@ class PstBeamSimulatorDevice(ObsSimulatorDevice):
 
 def main(args=None, **kwargs):
     """Main function of the device module."""
-    return run((ObsSimulatorDevice,), args=args, **kwargs)
+    return run((PstBeamSimulatorDevice,), args=args, **kwargs)
 
 
 if __name__ == "__main__":

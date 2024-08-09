@@ -152,7 +152,7 @@ def test_pst_beam_restart(pst_device, init_obs_state, change_event_callbacks):
     change_event_callbacks.assert_change_event(
         "longRunningCommandStatus", (command_id, "COMPLETED")
     )
-    change_event_callbacks.assert_change_event("obsState", ObsState.IDLE)
+    change_event_callbacks.assert_change_event("obsState", ObsState.EMPTY)
 
 
 def test_beam_configure_not_allowed_in_wrong_state(pst_device):
@@ -187,3 +187,22 @@ def test_beam_configure_not_allowed_in_wrong_obs_state(
     )
     with pytest.raises(tango.DevFailed):
         pst_device.ConfigureScan('{"subarray_id":1}')
+
+
+def test_pst_beam_scan(pst_device, change_event_callbacks):
+    """Test scan request on PST Beam"""
+    # load the cahnnel block configuration from a data file. This  file
+    # is the same used by the PST simulator during beam configuration.
+    pst_device.forcestate(tango.DevState.ON)
+    change_event_callbacks.assert_change_event("state", tango.DevState.ON)
+    pst_device.forceobsstate(ObsState.READY)
+    change_event_callbacks.assert_change_event("obsState", ObsState.READY)
+    [[result_code], [command_id]] = pst_device.Scan('{"subarray_id":1}')
+    assert result_code == ResultCode.QUEUED
+    change_event_callbacks.assert_change_event("obsState", ObsState.SCANNING)
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "STAGING")
+    )
+    change_event_callbacks.assert_change_event(
+        "longRunningCommandStatus", (command_id, "IN_PROGRESS")
+    )

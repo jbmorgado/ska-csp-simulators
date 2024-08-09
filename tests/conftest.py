@@ -108,5 +108,7 @@ def change_event_callbacks() -> MockTangoEventCallbackGroup:
         "longRunningCommandProgress",
         "longRunningCommandResult",
         "longRunningCommandStatus",
+        "dataReceived",
+        "dataReceiveRate",
         timeout=5,
     )
