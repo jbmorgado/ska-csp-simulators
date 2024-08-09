@@ -87,13 +87,13 @@ class PstBeamSimulatorDevice(ObsSimulatorDevice):
     def _update_random_attributes(self: PstBeamSimulatorDevice):
         while True:
             self._data_receive_rate = generate_random_number(
-                data_type=float, range_start=0, range_end=200
+                data_type="float", range_start=0, range_end=200
             )
             self.logger.error(
                 f"Update dataReceivedRate to {self._data_receive_rate} "
             )
             self._data_received = generate_random_number(
-                data_type=int, range_start=0, range_end=10000
+                data_type="int", range_start=0, range_end=10000
             )
             self.logger.error(f"Update dataReceived to {self._data_received}")
             time.sleep(1)
